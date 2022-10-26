@@ -3,6 +3,7 @@ process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, '../public')
 
 import { app, BrowserWindow, globalShortcut, shell, ipcMain } from 'electron'
+import database from './module/database'
 import http from './module/http-service'
 import { release } from 'os'
 import { join } from 'path'
@@ -17,7 +18,7 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0)
 }
 // 屏蔽Electron安全警告
-// process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win = null
 const preload = join(__dirname, './preload.js')
@@ -62,7 +63,10 @@ async function init(){
   globalShortcut.register('Ctrl+CommandOrControl+T', () => {
     console.log('[app] Listened to shortcut keys')
   });
-  http.start(app.isPackaged);
+  // 初始化数据库
+  database.init();
+  // 启动Http服务
+  http.start(app.isPackaged,database);
   console.log('[app] Register shortcuts')
   createWindow();
 }

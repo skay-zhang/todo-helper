@@ -6,15 +6,17 @@ import http from 'http'
 let Server;
 // 会话连接池
 let Sockets = [];
+let database;
 
 const httpService = {
   port: 22333,
   state: false,
-  start: dev => {
+  start: (dev,db) => {
     console.log('[http] Service start on port ' + httpService.port)
     Server = http.createServer(controller(dev)).listen(httpService.port, () => {
       console.log('Service Running')
       httpService.state = true
+      database = db
     })
     Server.on("connection", function (socket) {
       let ip = socket.remoteAddress;
