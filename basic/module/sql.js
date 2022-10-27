@@ -1,4 +1,4 @@
-export default sql = {
+const sql = {
   queryTabel: `SELECT name FROM sqlite_master WHERE type = 'table';`,
   initTabel: {
     tags: `CREATE TABLE "main"."tags" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "name" TEXT NOT NULL, "default" INTEGER(1));`,
@@ -49,7 +49,27 @@ export default sql = {
     remove: id => {
       return `DELETE FROM "main"."matters" WHERE rowid = ${id};`
     },
-    getNumber: `SELECT COUNT(1) AS 'number' FROM "matters";`,
-    getList: `SELECT "matters"."id","matters"."name","matters"."rule" FROM "matters";`
+    getNumber: (start, end, state, tag, del) => {
+      let screen = sql.matters.buildScreen(start, end, state, tag, del);
+      return `SELECT COUNT(1) AS 'number' FROM "matters" WHERE ${screen};`
+    },
+    getList: (start, end, state, tag, number, page, sort, del) => {
+      let screen = sql.matters.buildScreen(start, end, state, tag, del);
+      if (sort !== 'DESC' && sort !== 'ASC') sort = 'ASC'
+
+      return `SELECT "id","date","content","state","tag","del" FROM "matters" WHERE ${screen} ORDER BY "date" ${sort} LIMIT ${page == 0 ? 0 : (page - 1) * number},${number};`
+    },
+    buildScreen: (start, end, state, tag, del) => {
+      let screen = '';
+      if (start) screen = `"date" >= '${start}' AND `
+      if (end) screen += `"date" <= '${end}' AND `
+      if (state > 0) screen += `"state" = ${state} AND `
+      if (tag) screen += `"tag" LIKE '%${tag}%' AND `
+      if (del === 1) screen += '"del" = 1'
+      else screen += '("del" IS NULL OR "del" = 0)'
+      return screen;
+    }
   }
 }
+
+export default sql
