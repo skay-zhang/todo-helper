@@ -1,8 +1,8 @@
 process.env.DIST_ELECTRON = join(__dirname, '..')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
-process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, '../public')
+process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, './public')
 
-import { app, BrowserWindow, globalShortcut, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, globalShortcut, shell, Tray, Menu, ipcMain } from 'electron'
 import database from './module/database'
 import http from './module/http-service'
 import { release } from 'os'
@@ -21,6 +21,7 @@ if (!app.requestSingleInstanceLock()) {
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win = null
+let tray = null
 const preload = join(__dirname, './preload.js')
 const indexHtml = join(process.env.DIST, 'index.html')
 const url = process.env.VITE_DEV_SERVER_URL
@@ -59,16 +60,16 @@ async function createWindow() {
   })
 }
 // 应用初始化
-async function init(){
+async function init() {
   globalShortcut.register('Ctrl+CommandOrControl+T', () => {
     console.log('[app] Listened to shortcut keys')
   });
   // 初始化数据库
   database.init();
   // 启动Http服务
-  http.start(app.isPackaged,database);
+  http.start(app.isPackaged, database);
   console.log('[app] Register shortcuts')
-  createWindow();
+  initMenu();
 }
 // 应用就绪
 app.whenReady().then(init)
@@ -116,3 +117,77 @@ ipcMain.handle('open-win', (event, arg) => {
     // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
   }
 })
+
+function initMenu() {
+  tray = new Tray(join(process.env.PUBLIC, 'logo/tray.png'));
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: '事项管理',
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+A',
+      click: () => {
+        if(win == null) createWindow();
+        else win.show()
+      }
+    },
+    { type: 'separator' },
+    {
+      label: '快速创建事项', 
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+C',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+C')
+      }
+    },
+    {
+      label: '查看待办事项', 
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+T',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+T')
+      }
+    },
+    {
+      label: '查看今日已完成', 
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+G',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+G')
+      }
+    },
+    { type: 'separator' },
+    {
+      label: '导出月报', 
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+M',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+M')
+      }
+    },
+    {
+      label: '导出周报', 
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+W',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+W')
+      }
+    },
+    {
+      label: '导出日报', 
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+D',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+D')
+      }
+    },
+    { type: 'separator' },
+    { label: '检查更新' },
+    { label: '关于', role: 'about' },
+    { label: '退出', role: 'quit' }
+  ])
+  tray.setToolTip('待办助手');
+  tray.setContextMenu(contextMenu);
+  tray.on('click', () => {
+    tray.popUpContextMenu();
+  })
+}
