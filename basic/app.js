@@ -2,7 +2,7 @@ process.env.DIST_ELECTRON = join(__dirname, '..')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, './public')
 
-import { app, BrowserWindow, globalShortcut, shell, Tray, Menu, ipcMain, safeStorage } from 'electron'
+import { app, BrowserWindow, globalShortcut, Tray, Menu, ipcMain, safeStorage } from 'electron'
 import database from './module/database'
 import http from './module/http-service'
 import { release } from 'os'
@@ -94,16 +94,6 @@ async function initMenu() {
   tray = new Tray(join(process.env.PUBLIC, 'logo/tray.png'));
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: '事项管理',
-      registerAccelerator: true,
-      accelerator: 'CommandOrControl+A',
-      click: () => {
-        if (mwin == null) createManagementWindow();
-        else mwin.show()
-      }
-    },
-    { type: 'separator' },
-    {
       label: '快速创建事项',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+C',
@@ -112,20 +102,14 @@ async function initMenu() {
         else fwin.show()
       }
     },
+    { type: 'separator' },
     {
-      label: '查看待办事项',
+      label: '事项管理',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+T',
+      accelerator: 'CommandOrControl+A',
       click: () => {
-        console.log('[app] Listened to CommandOrControl+T')
-      }
-    },
-    {
-      label: '查看今日已完成',
-      registerAccelerator: true,
-      accelerator: 'CommandOrControl+G',
-      click: () => {
-        console.log('[app] Listened to CommandOrControl+G')
+        if (mwin == null) createManagementWindow();
+        else mwin.show()
       }
     },
     { type: 'separator' },
@@ -155,7 +139,14 @@ async function initMenu() {
     },
     { type: 'separator' },
     { label: '检查更新' },
-    { label: '偏好设置' },
+    {
+      label: '偏好设置',
+      registerAccelerator: true,
+      accelerator: 'CommandOrControl+S',
+      click: () => {
+        console.log('[app] Listened to CommandOrControl+S')
+      }
+    },
     { label: '关于', role: 'about' },
     { label: '退出', role: 'quit' }
   ])
@@ -179,7 +170,8 @@ async function init() {
     iconPath: join(process.env.PUBLIC, 'logo/logo.png')
   })
   globalShortcut.register('Ctrl+CommandOrControl+T', () => {
-    console.log('[app] Listened to shortcut keys')
+    if (fwin == null) createFastAddWindow();
+    else fwin.show()
   });
   // 初始化数据库
   database.init();
@@ -238,4 +230,9 @@ ipcMain.handle('open-win', (_event, arg) => {
     childWindow.loadURL(`${url}#${arg}`)
     // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
   }
+})
+// 关闭窗口
+ipcMain.on('close-window', (_event, name) => {
+  if(name === 'fastAdd') fwin.close();
+  else if(name === 'management') mwin.close();
 })

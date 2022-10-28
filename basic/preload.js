@@ -1,3 +1,9 @@
+import { contextBridge, ipcRenderer } from 'electron'
+
+contextBridge.exposeInMainWorld('electron', {
+  closeWindow: name => ipcRenderer.send('close-window',name)
+})
+
 function domReady(condition = ['complete', 'interactive']) {
   return new Promise(resolve => {
     if (condition.includes(document.readyState)) {
