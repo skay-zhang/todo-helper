@@ -7,7 +7,6 @@ import http from 'http'
 let Server;
 // 会话连接池
 let Sockets = [];
-let database;
 
 const httpService = {
   port: 22333,
@@ -65,7 +64,8 @@ function controller(dev, db, safe) {
     if (req.method.toLowerCase() == 'options') res.send(200);
     else next();
   })
-  serve.use(bodyParser.urlencoded({ extends: false }))
+  // 添加请求体解析器
+  serve.use(bodyParser.urlencoded({ extended: false }))
   // 初始化添加页面
   serve.get('/api/add', (_req, res) => {
     db.getInitData((state, data) => {
@@ -127,13 +127,14 @@ function controller(dev, db, safe) {
   return serve;
 }
 
+// 返回内容包装器
 function ret(res, state, result) {
   res.setHeader("Content-Type", "application/json;charset=UTF-8")
   res.send({ state, result })
   return false;
 }
 
-// 加密
+// 字符串加密
 function encrypt(safe, text) {
   try {
     if (safe === undefined || safe === false) return text
@@ -144,7 +145,7 @@ function encrypt(safe, text) {
   }
 }
 
-// 解密
+// 字符串解密
 function decrypt(safe, text) {
   try {
     if (safe === undefined || safe === false) return text

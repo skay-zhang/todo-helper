@@ -28,13 +28,11 @@ const url = process.env.VITE_DEV_SERVER_URL
 // 创建窗口
 async function createWindow() {
   win = new BrowserWindow({
-    title: 'Main window',
+    title: '待办助手',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 400,
     height: 600,
     resizable: false,
-    // 窗口置顶
-    // alwaysOnTop: true,
     skipTaskbar: false,
     maximizable: false,
     fullscreenable: false,
@@ -47,99 +45,14 @@ async function createWindow() {
     },
   })
 
-  if (app.isPackaged) {
-    win.loadFile(indexHtml)
-  } else {
+  if (app.isPackaged) win.loadFile(indexHtml)
+  else {
     win.loadURL(url)
-    // Open devTool if the app is not packaged
     win.webContents.openDevTools()
   }
-
-  // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString())
-  })
-
-  // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url)
-    return { action: 'deny' }
-  })
 }
-// 应用初始化
-async function init() {
-  // MacOS 不显示在dock中
-  app.setActivationPolicy('accessory');
-  // 设置关于面板信息
-  app.setAboutPanelOptions({
-    applicationName: '待办助手',
-    applicationVersion: app.getVersion(),
-    copyright: 'Apache License',
-    authors: 'SkayZhang',
-    website: 'https://github.com/skay-zhang/todo-helper',
-    iconPath: join(process.env.PUBLIC, 'logo/logo.png')
-  })
-  globalShortcut.register('Ctrl+CommandOrControl+T', () => {
-    console.log('[app] Listened to shortcut keys')
-  });
-  // 初始化数据库
-  database.init();
-  // 初始化安全服务
-  let safe = safeStorage.isEncryptionAvailable();
-  console.log('[app] Security services ' + (safe ? '' : 'not ') + 'available')
-  // 启动Http服务
-  http.start(app.isPackaged, database, safe ? safeStorage : false);
-  console.log('[app] Register shortcuts')
-  initMenu();
-}
-// 应用就绪
-app.whenReady().then(init)
-
-// ==================== 以下为事件监听部分 ==================== //
-
-// 窗口全部关闭
-app.on('window-all-closed', () => {
-  win = null
-  if (process.platform !== 'darwin') app.quit()
-})
-// 尝试关闭应用
-app.on('before-quit', () => {
-  http.stop();
-  // 注销快捷键
-  globalShortcut.unregisterAll()
-  console.log('[app] Unregister shortcuts')
-})
-// 第二个实例启动
-app.on('second-instance', () => {
-  if (win) {
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
-})
-// 激活应用实例
-app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows()
-  if (allWindows.length) allWindows[0].focus()
-  else createWindow()
-})
-// 打开子窗口
-ipcMain.handle('open-win', (event, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  })
-
-  if (app.isPackaged) childWindow.loadFile(indexHtml, { hash: arg })
-  else {
-    childWindow.loadURL(`${url}#${arg}`)
-    // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
-  }
-})
-
-function initMenu() {
+// 初始化菜单
+async function initMenu() {
   tray = new Tray(join(process.env.PUBLIC, 'logo/tray.png'));
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -213,3 +126,73 @@ function initMenu() {
     tray.popUpContextMenu();
   })
 }
+// 应用初始化
+async function init() {
+  // MacOS 不显示在dock中
+  app.setActivationPolicy('accessory');
+  // 设置关于面板信息
+  app.setAboutPanelOptions({
+    applicationName: '待办助手',
+    applicationVersion: app.getVersion(),
+    copyright: 'Apache License',
+    authors: 'SkayZhang',
+    website: 'https://github.com/skay-zhang/todo-helper',
+    iconPath: join(process.env.PUBLIC, 'logo/logo.png')
+  })
+  globalShortcut.register('Ctrl+CommandOrControl+T', () => {
+    console.log('[app] Listened to shortcut keys')
+  });
+  // 初始化数据库
+  database.init();
+  // 初始化安全服务
+  let safe = safeStorage.isEncryptionAvailable();
+  // 启动Http服务
+  http.start(app.isPackaged, database, safe ? safeStorage : false);
+  console.log('[app] Register shortcuts')
+  initMenu();
+}
+// 应用就绪
+app.whenReady().then(init)
+// ==================== 以下为事件监听部分 ==================== //
+
+// 窗口全部关闭
+app.on('window-all-closed', () => {
+  win = null
+  if (process.platform !== 'darwin') app.quit()
+})
+// 尝试关闭应用
+app.on('before-quit', () => {
+  http.stop();
+  // 注销快捷键
+  globalShortcut.unregisterAll()
+  console.log('[app] Unregister shortcuts')
+})
+// 第二个实例启动
+app.on('second-instance', () => {
+  if (win) {
+    if (win.isMinimized()) win.restore()
+    win.focus()
+  }
+})
+// 激活应用实例
+app.on('activate', () => {
+  const allWindows = BrowserWindow.getAllWindows()
+  if (allWindows.length) allWindows[0].focus()
+  else createWindow()
+})
+// 打开子窗口
+ipcMain.handle('open-win', (event, arg) => {
+  const childWindow = new BrowserWindow({
+    webPreferences: {
+      preload,
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  })
+
+  if (app.isPackaged) childWindow.loadFile(indexHtml, { hash: arg })
+  else {
+    childWindow.loadURL(`${url}#${arg}`)
+    // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
+  }
+})
