@@ -31,7 +31,7 @@ async function createManagementWindow() {
   mwin = new BrowserWindow({
     title: '待办助手',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
-    width: 400,
+    width: 500,
     height: 600,
     resizable: false,
     skipTaskbar: false,
@@ -63,7 +63,7 @@ async function createFastAddWindow() {
     title: '快速创建',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 500,
-    height: 300,
+    height: 232,
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: false,
