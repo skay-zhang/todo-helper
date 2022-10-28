@@ -1,21 +1,30 @@
 <template>
-  <div>Hello World!</div>
+  <div class="hello">{{mode}} mode</div>
 </template>
 
 <script>
 export default {
   name: "App",
   data: () => ({
-
-  })
+    mode: ''
+  }),
+  methods:{
+  },
+  created(){
+    let search = window.location.search;
+    if(search && search.length > 2 && search.indexOf('?') === 0){
+      let params = new URLSearchParams(search.substring(1))
+      this.mode = params.get('mode')
+    }
+  }
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-  'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+<style scoped>
+.hello{
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 300px;
 }
 </style>

@@ -20,14 +20,15 @@ if (!app.requestSingleInstanceLock()) {
 // 屏蔽Electron安全警告
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-let win = null
+let mwin = null
+let fwin = null
 let tray = null
 const preload = join(__dirname, './preload.js')
 const indexHtml = join(process.env.DIST, 'index.html')
 const url = process.env.VITE_DEV_SERVER_URL
-// 创建窗口
-async function createWindow() {
-  win = new BrowserWindow({
+// 创建事项管理窗口
+async function createManagementWindow() {
+  mwin = new BrowserWindow({
     title: '待办助手',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 400,
@@ -37,7 +38,7 @@ async function createWindow() {
     maximizable: false,
     fullscreenable: false,
     titleBarStyle: 'hidden',
-    // titleBarOverlay: {},
+    backgroundColor: '#131313',
     webPreferences: {
       preload,
       nodeIntegration: false,
@@ -45,10 +46,47 @@ async function createWindow() {
     },
   })
 
-  if (app.isPackaged) win.loadFile(indexHtml)
-  else {
-    win.loadURL(url)
-    win.webContents.openDevTools()
+  if (app.isPackaged) {
+    mwin.loadFile(indexHtml, {
+      query: {
+        mode: 'management'
+      }
+    })
+  } else {
+    mwin.loadURL(url + '?mode=management')
+    mwin.webContents.openDevTools()
+  }
+}
+// 创建快速创建窗口
+async function createFastAddWindow() {
+  fwin = new BrowserWindow({
+    title: '快速创建',
+    icon: join(process.env.PUBLIC, 'favicon.ico'),
+    width: 500,
+    height: 300,
+    resizable: false,
+    alwaysOnTop: true,
+    skipTaskbar: false,
+    maximizable: false,
+    fullscreenable: false,
+    titleBarStyle: 'hidden',
+    backgroundColor: '#131313',
+    webPreferences: {
+      preload,
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  })
+
+  if (app.isPackaged) {
+    fwin.loadFile(indexHtml, {
+      query: {
+        mode: 'fastAdd'
+      }
+    })
+  } else {
+    fwin.loadURL(url + '?mode=fastAdd')
+    fwin.webContents.openDevTools()
   }
 }
 // 初始化菜单
@@ -60,8 +98,8 @@ async function initMenu() {
       registerAccelerator: true,
       accelerator: 'CommandOrControl+A',
       click: () => {
-        if (win == null) createWindow();
-        else win.show()
+        if (mwin == null) createManagementWindow();
+        else mwin.show()
       }
     },
     { type: 'separator' },
@@ -70,7 +108,8 @@ async function initMenu() {
       registerAccelerator: true,
       accelerator: 'CommandOrControl+C',
       click: () => {
-        console.log('[app] Listened to CommandOrControl+C')
+        if (fwin == null) createFastAddWindow();
+        else fwin.show()
       }
     },
     {
@@ -157,7 +196,8 @@ app.whenReady().then(init)
 
 // 窗口全部关闭
 app.on('window-all-closed', () => {
-  win = null
+  mwin = null
+  fwin = null
   if (process.platform !== 'darwin') app.quit()
 })
 // 尝试关闭应用
@@ -169,19 +209,22 @@ app.on('before-quit', () => {
 })
 // 第二个实例启动
 app.on('second-instance', () => {
-  if (win) {
-    if (win.isMinimized()) win.restore()
-    win.focus()
+  if (mwin) {
+    if (mwin.isMinimized()) mwin.restore()
+    mwin.focus()
+  } else if (fwin) {
+    if (fwin.isMinimized()) fwin.restore()
+    fwin.focus()
   }
 })
 // 激活应用实例
 app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows()
   if (allWindows.length) allWindows[0].focus()
-  else createWindow()
+  else createManagementWindow()
 })
 // 打开子窗口
-ipcMain.handle('open-win', (event, arg) => {
+ipcMain.handle('open-win', (_event, arg) => {
   const childWindow = new BrowserWindow({
     webPreferences: {
       preload,
