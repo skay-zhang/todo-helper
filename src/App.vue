@@ -105,7 +105,7 @@ export default {
   font-size: 12px;
   color: #999;
   display: flex;
-  height: 25px;
+  height: 27px;
   width: 100%;
 }
 
@@ -116,7 +116,7 @@ export default {
 #left-menu {
   background-color: #212122;
   position: relative;
-  height: 575px;
+  height: 573px;
   width: 50px;
 }
 
@@ -143,7 +143,7 @@ export default {
 .content {
   overflow-x: hidden;
   overflow-y: auto;
-  height: 575px;
+  height: 573px;
   width: 100%;
 }
 

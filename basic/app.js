@@ -63,7 +63,7 @@ async function createFastAddWindow() {
     title: '快速创建',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 500,
-    height: 232,
+    height: 234,
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: false,
@@ -98,7 +98,7 @@ async function initMenu() {
       registerAccelerator: true,
       accelerator: 'CommandOrControl+C',
       click: () => {
-        if (fwin == null) createFastAddWindow();
+        if (fwin == null || fwin.isDestroyed()) createFastAddWindow();
         else fwin.show()
       }
     },
@@ -108,7 +108,7 @@ async function initMenu() {
       registerAccelerator: true,
       accelerator: 'CommandOrControl+A',
       click: () => {
-        if (mwin == null) createManagementWindow();
+        if (mwin == null || mwin.isDestroyed()) createManagementWindow();
         else mwin.show()
       }
     },
@@ -159,7 +159,8 @@ async function initMenu() {
 // 应用初始化
 async function init() {
   // MacOS 不显示在dock中
-  app.setActivationPolicy('accessory');
+  if (process.platform !== 'win32')
+    app.setActivationPolicy('accessory');
   // 设置关于面板信息
   app.setAboutPanelOptions({
     applicationName: '待办助手',
@@ -170,7 +171,7 @@ async function init() {
     iconPath: join(process.env.PUBLIC, 'logo/logo.png')
   })
   globalShortcut.register('Ctrl+CommandOrControl+T', () => {
-    if (fwin == null) createFastAddWindow();
+    if (fwin == null || fwin.isDestroyed()) createFastAddWindow();
     else fwin.show()
   });
   // 初始化数据库
@@ -187,11 +188,7 @@ app.whenReady().then(init)
 // ==================== 以下为事件监听部分 ==================== //
 
 // 窗口全部关闭
-app.on('window-all-closed', () => {
-  mwin = null
-  fwin = null
-  if (process.platform !== 'darwin') app.quit()
-})
+app.on('window-all-closed', e => e.preventDefault())
 // 尝试关闭应用
 app.on('before-quit', () => {
   http.stop();
@@ -233,6 +230,6 @@ ipcMain.handle('open-win', (_event, arg) => {
 })
 // 关闭窗口
 ipcMain.on('close-window', (_event, name) => {
-  if(name === 'fastAdd') fwin.close();
-  else if(name === 'management') mwin.close();
+  if (name === 'fastAdd') fwin.close();
+  else if (name === 'management') mwin.close();
 })
