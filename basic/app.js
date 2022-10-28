@@ -2,7 +2,7 @@ process.env.DIST_ELECTRON = join(__dirname, '..')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, './public')
 
-import { app, BrowserWindow, globalShortcut, shell, Tray, Menu, ipcMain } from 'electron'
+import { app, BrowserWindow, globalShortcut, shell, Tray, Menu, ipcMain, safeStorage } from 'electron'
 import database from './module/database'
 import http from './module/http-service'
 import { release } from 'os'
@@ -30,13 +30,20 @@ async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
+    width: 400,
+    height: 600,
+    resizable: false,
+    // 窗口置顶
+    // alwaysOnTop: true,
+    skipTaskbar: false,
+    maximizable: false,
+    fullscreenable: false,
+    titleBarStyle: 'hidden',
+    // titleBarOverlay: {},
     webPreferences: {
       preload,
-      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
     },
   })
 
@@ -61,13 +68,27 @@ async function createWindow() {
 }
 // 应用初始化
 async function init() {
+  // MacOS 不显示在dock中
+  app.setActivationPolicy('accessory');
+  // 设置关于面板信息
+  app.setAboutPanelOptions({
+    applicationName: '待办助手',
+    applicationVersion: app.getVersion(),
+    copyright: 'Apache License',
+    authors: 'SkayZhang',
+    website: 'https://github.com/skay-zhang/todo-helper',
+    iconPath: join(process.env.PUBLIC, 'logo/logo.png')
+  })
   globalShortcut.register('Ctrl+CommandOrControl+T', () => {
     console.log('[app] Listened to shortcut keys')
   });
   // 初始化数据库
   database.init();
+  // 初始化安全服务
+  let safe = safeStorage.isEncryptionAvailable();
+  console.log('[app] Security services ' + (safe ? '' : 'not ') + 'available')
   // 启动Http服务
-  http.start(app.isPackaged, database);
+  http.start(app.isPackaged, database, safe ? safeStorage : false);
   console.log('[app] Register shortcuts')
   initMenu();
 }
@@ -126,13 +147,13 @@ function initMenu() {
       registerAccelerator: true,
       accelerator: 'CommandOrControl+A',
       click: () => {
-        if(win == null) createWindow();
+        if (win == null) createWindow();
         else win.show()
       }
     },
     { type: 'separator' },
     {
-      label: '快速创建事项', 
+      label: '快速创建事项',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+C',
       click: () => {
@@ -140,7 +161,7 @@ function initMenu() {
       }
     },
     {
-      label: '查看待办事项', 
+      label: '查看待办事项',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+T',
       click: () => {
@@ -148,7 +169,7 @@ function initMenu() {
       }
     },
     {
-      label: '查看今日已完成', 
+      label: '查看今日已完成',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+G',
       click: () => {
@@ -157,7 +178,7 @@ function initMenu() {
     },
     { type: 'separator' },
     {
-      label: '导出月报', 
+      label: '导出月报',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+M',
       click: () => {
@@ -165,7 +186,7 @@ function initMenu() {
       }
     },
     {
-      label: '导出周报', 
+      label: '导出周报',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+W',
       click: () => {
@@ -173,7 +194,7 @@ function initMenu() {
       }
     },
     {
-      label: '导出日报', 
+      label: '导出日报',
       registerAccelerator: true,
       accelerator: 'CommandOrControl+D',
       click: () => {
@@ -182,6 +203,7 @@ function initMenu() {
     },
     { type: 'separator' },
     { label: '检查更新' },
+    { label: '偏好设置' },
     { label: '关于', role: 'about' },
     { label: '退出', role: 'quit' }
   ])
