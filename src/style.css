@@ -160,10 +160,15 @@ body {
 }
 
 .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-  background-color: #000;
+  background-color: #202020;
   color: #fff;
 }
 
 .ant-empty-small {
   color: #999;
+}
+
+.ant-select-multiple .ant-select-selection-item{
+  background-color: #202020;
+  border: none;
 }

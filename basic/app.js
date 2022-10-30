@@ -49,11 +49,12 @@ async function createManagementWindow() {
   if (app.isPackaged) {
     mwin.loadFile(indexHtml, {
       query: {
-        mode: 'management'
+        mode: 'management',
+        platform: process.platform
       }
     })
   } else {
-    mwin.loadURL(url + '?mode=management')
+    mwin.loadURL(url + '?mode=management&platform=' + process.platform)
     mwin.webContents.openDevTools()
   }
 }
@@ -81,11 +82,12 @@ async function createFastAddWindow() {
   if (app.isPackaged) {
     fwin.loadFile(indexHtml, {
       query: {
-        mode: 'fastAdd'
+        mode: 'fastAdd',
+        platform: process.platform
       }
     })
   } else {
-    fwin.loadURL(url + '?mode=fastAdd')
+    fwin.loadURL(url + '?mode=fastAdd&platform=' + process.platform)
     fwin.webContents.openDevTools()
   }
 }
