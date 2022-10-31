@@ -32,7 +32,7 @@ async function createManagementWindow() {
     title: '待办助手',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 500,
-    height: 600,
+    height: 520,
     resizable: false,
     skipTaskbar: false,
     maximizable: false,

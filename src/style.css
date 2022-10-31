@@ -26,6 +26,15 @@ body {
   margin: 0;
 }
 
+.card{
+  background-color: #202020;
+  border-radius: 8px;
+}
+
+.pa-5 {
+  padding: 5px;
+}
+
 .pa-10 {
   padding: 10px;
 }
@@ -34,12 +43,20 @@ body {
   margin-right: 5px;
 }
 
+.mb-5 {
+  margin-bottom: 5px;
+}
+
 .ml-10 {
   margin-left: 10px;
 }
 
 .mr-10 {
   margin-right: 10px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
 }
 
 .line1,
@@ -90,12 +107,36 @@ body {
   float: right;
 }
 
+.full-width{
+  width: 100%;
+}
+
+.text-center{
+  text-align: center;
+}
+
+.text-big {
+  font-size: 16px;
+}
+
 .text-small {
   font-size: 12px;
 }
 
 .text-gray {
   color: #999;
+}
+
+.text-red {
+  color: #f53737;
+}
+
+.text-orange {
+  color: #e09710;
+}
+
+.text-green {
+  color: #189f18;
 }
 
 .ant-btn,
@@ -143,9 +184,16 @@ body {
   border: none;
 }
 
-.ant-select-arrow {
+.ant-select-arrow,
+.ant-select-clear {
+  background-color: #2d2d2d;
   color: #999;
 }
+
+.ant-select-clear:hover {
+  color: #fff;
+}
+
 
 .ant-select-dropdown {
   background-color: #363636;
@@ -164,6 +212,8 @@ body {
   color: #fff;
 }
 
+.ant-select-item-option-disabled,
+.ant-empty-description,
 .ant-empty-small {
   color: #999;
 }
@@ -171,4 +221,21 @@ body {
 .ant-select-multiple .ant-select-selection-item{
   background-color: #202020;
   border: none;
+}
+
+.ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector{
+  background-color: #202020;
+  color: #999;
+}
+
+.ant-empty-img-simple-g {
+  stroke: #8a8a8a;
+}
+
+.ant-empty-img-simple-path {
+  fill: #484848;
+}
+
+.ant-empty-img-simple-ellipse {
+  fill: #3a3a3a;
 }
