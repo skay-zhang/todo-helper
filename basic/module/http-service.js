@@ -77,6 +77,12 @@ function controller(dev, db, safe) {
         }
       }
       data.safe = safe === false ? false : true
+      if(data.matters){
+        for(let i in data.matters){
+          let item = data.matters[i];
+          item.content = decrypt(safe, item.content);
+        }
+      }
       ret(res, state, data)
     })
   });

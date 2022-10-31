@@ -23,6 +23,10 @@ export default {
     }
   },
   created() {
+    this.$message.config({
+      maxCount: 1,
+      top: `0px`
+    });
     let search = window.location.search;
     if (search && search.length > 2 && search.indexOf('?') === 0) {
       let params = new URLSearchParams(search.substring(1))

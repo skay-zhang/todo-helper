@@ -26,7 +26,7 @@ body {
   margin: 0;
 }
 
-.card{
+.card {
   background-color: #202020;
   border-radius: 8px;
 }
@@ -45,6 +45,10 @@ body {
 
 .mb-5 {
   margin-bottom: 5px;
+}
+
+.ml-5 {
+  margin-left: 5px;
 }
 
 .ml-10 {
@@ -107,11 +111,11 @@ body {
   float: right;
 }
 
-.full-width{
+.full-width {
   width: 100%;
 }
 
-.text-center{
+.text-center {
   text-align: center;
 }
 
@@ -175,6 +179,15 @@ body {
   color: #797979;
 }
 
+.ant-btn[disabled],
+.ant-btn[disabled]:hover,
+.ant-btn[disabled]:focus,
+.ant-btn[disabled]:active {
+  background-color: #000;
+  color: #999;
+  border: none;
+}
+
 .ant-select {
   color: #fff;
 }
@@ -218,12 +231,12 @@ body {
   color: #999;
 }
 
-.ant-select-multiple .ant-select-selection-item{
+.ant-select-multiple .ant-select-selection-item {
   background-color: #202020;
   border: none;
 }
 
-.ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector{
+.ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
   background-color: #202020;
   color: #999;
 }
@@ -238,4 +251,18 @@ body {
 
 .ant-empty-img-simple-ellipse {
   fill: #3a3a3a;
+}
+
+.ant-message-notice-content {
+  background-color: #000000;
+  border-bottom: 1px solid #484848;
+  padding: 3px 10px;
+  color: #f4f4f4;
+  width: 100%;
+}
+
+.ant-message-notice {
+  padding-right: 0;
+  padding-left: 0;
+  padding-top: 0;
 }

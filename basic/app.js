@@ -55,7 +55,7 @@ async function createManagementWindow() {
     })
   } else {
     mwin.loadURL(url + '?mode=management&platform=' + process.platform)
-    mwin.webContents.openDevTools()
+    // mwin.webContents.openDevTools()
   }
 }
 // 创建快速创建窗口
@@ -88,7 +88,7 @@ async function createFastAddWindow() {
     })
   } else {
     fwin.loadURL(url + '?mode=fastAdd&platform=' + process.platform)
-    fwin.webContents.openDevTools()
+    // fwin.webContents.openDevTools()
   }
 }
 // 初始化菜单
@@ -181,7 +181,7 @@ async function init() {
   // 初始化安全服务
   let safe = safeStorage.isEncryptionAvailable();
   // 启动Http服务
-  http.start(app.isPackaged, database, safe ? safeStorage : false);
+  http.start(!app.isPackaged, database, safe ? safeStorage : false);
   console.log('[app] Register shortcuts')
   initMenu();
 }
