@@ -94,7 +94,7 @@ function controller(dev, db, safe) {
     if (body.content == undefined || body.content == '') return ret(res, false, '内容不能为空')
     if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
     if (body.tag == undefined) body.tag = ''
-    db.addMatters(encrypt(safe, body.content), body.state, body.tag, (state, data) => {
+    db.addMatter(encrypt(safe, body.content), body.state, body.tag, (state, data) => {
       ret(res, state, data)
     })
   });
@@ -120,6 +120,15 @@ function controller(dev, db, safe) {
           item.content = decrypt(safe, item.content);
         }
       }
+      ret(res, state, data)
+    })
+  });
+  // 修改事项状态
+  serve.post('/api/state', (req, res) => {
+    let body = req.body;
+    if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
+    if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
+    db.updateMatter(body.id, 'state', body.state, (state, data) => {
       ret(res, state, data)
     })
   });

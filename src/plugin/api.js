@@ -22,7 +22,7 @@ export default {
             method: 'GET'
         })
     },
-    addMatters: form => {
+    addMatter: form => {
         let data = new URLSearchParams();
         data.append('content', form.content);
         data.append('state', form.state);
@@ -57,6 +57,16 @@ export default {
         data.append('page', form.page);
         return request({
             url: '/list',
+            method: 'POST',
+            data
+        })
+    },
+    updateMatterState: (id, state) => {
+        let data = new URLSearchParams();
+        data.append('id', id);
+        data.append('state', state);
+        return request({
+            url: '/state',
             method: 'POST',
             data
         })

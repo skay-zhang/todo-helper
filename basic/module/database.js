@@ -47,7 +47,7 @@ const database = {
     });
     db.close();
   },
-  addMatters(content, state, tag, callback) {
+  addMatter(content, state, tag, callback) {
     db = new sqlite.Database('zero.db');
     db.serialize(() => {
       db.all(sql.matters.add(content, state, tag), (err, res) => {
@@ -74,6 +74,15 @@ const database = {
     });
     db.close();
   },
+  updateMatter(id, key, value, callback) {
+    db = new sqlite.Database('zero.db');
+    db.serialize(() => {
+      db.all(sql.matters.update(id, key, value), (err, res) => {
+        callback(err ? false : true, res)
+      })
+    });
+    db.close();
+  },
   searchTags(key, callback) {
     db = new sqlite.Database('zero.db');
     db.serialize(() => {
@@ -83,11 +92,11 @@ const database = {
     });
     db.close();
   },
-  addTag(name,isDefault, callback) {
+  addTag(name, isDefault, callback) {
     db = new sqlite.Database('zero.db');
     db.serialize(() => {
-      db.all(sql.tags.add(name,isDefault), (err, res) => {
-        if(err) callback(false, res)
+      db.all(sql.tags.add(name, isDefault), (err, res) => {
+        if (err) callback(false, res)
         db.get(sql.tags.getIdByName(name), (error, sub) => {
           callback(error ? false : true, sub)
         })

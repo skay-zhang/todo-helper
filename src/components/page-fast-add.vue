@@ -1,8 +1,8 @@
 <template>
   <div class="app-fast-add">
-    <template v-if="matters != undefined">
+    <template v-if="matters != null && matters != undefined">
       <a-carousel v-if="matters.length > 0" autoplay dotsClass="dot" dot-position="left">
-        <div v-for="item in matters" :key="item.id">
+        <div v-for="(item) in matters" :key="item.id">
           <div class="pa-10 flex align-center justify-between">
             <div class="flex align-center">
               <div class="ml-5">"</div>
@@ -13,8 +13,8 @@
               <div v-else-if="item.state === 3">已完成</div>
             </div>
             <div class="flex align-center">
-              <a-button size="small" v-if="item.state === 1">正在进行</a-button>
-              <a-button size="small" v-else-if="item.state === 2">已完成</a-button>
+              <a-button size="small" @click="changeState(item)" v-if="item.state === 1">正在进行</a-button>
+              <a-button size="small" @click="changeState(item)" v-else-if="item.state === 2">已完成</a-button>
               <a-button type="text" size="small" v-else-if="item.state === 3">{{ item.date }}</a-button>
             </div>
           </div>
@@ -54,7 +54,8 @@
         </a-select>
         <a-select placeholder="辅助标签" size="small" allowClear showSearch v-model:value="config.tag[1]"
           :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="config.tag[0] == undefined"
-          style="width: 95px" @search="key => search(1, key)" @change="i => changeTag(1, i)" @keydown.enter.native="keydown">
+          style="width: 95px" @search="key => search(1, key)" @change="i => changeTag(1, i)"
+          @keydown.enter.native="keydown">
           <a-select-option v-for="item in config.tags[1]" :value="item.id"
             :disabled="loaidng || item.name == form.tags[0]">
             {{ item.name }}
@@ -78,6 +79,7 @@ export default {
   components: { LoadingOutlined },
   data: () => ({
     loaidng: false,
+    matters: null,
     form: {
       content: '',
       state: 2,
@@ -100,6 +102,7 @@ export default {
   }),
   methods: {
     init() {
+      this.matters = null;
       api.initAdd().then(res => {
         if (res.state) {
           if (res.result.matters) {
@@ -110,7 +113,6 @@ export default {
           }
           this.matters = res.result.matters;
           this.safe = res.result.safe;
-          this.$forceUpdate();
         }
       }).catch(err => {
         this.loaidng = false;
@@ -153,6 +155,37 @@ export default {
       let tag = this.config.tags[level][index];
       this.config.tag[level] = tag.id;
       this.form.tags[level] = tag;
+    },
+    changeState(info) {
+      let title = '';
+      if (info.state === 1) title = '此事项确认“正在进行”吗?'
+      else if (info.state === 2) title = '此事项确认“已完成”吗?'
+
+      this.$confirm({
+        class: 'change-tips',
+        content: `事项内容: ${info.content}`,
+        cancelText: '取消',
+        okText: '确认',
+        title,
+        onOk: () => {
+          api.updateMatterState(info.id, info.state + 1).then(res => {
+            if (res.state) {
+              this.$message.success({
+                content: '修改成功'
+              })
+              this.init()
+            } else {
+              this.$message.error({
+                content: res.result ? res.result : '修改失败'
+              })
+            }
+          }).catch(err => {
+            this.$message.error({
+              content: '修改失败,' + err
+            })
+          })
+        }
+      })
     },
     addTag() {
       for (let i in this.form.tags) {
@@ -198,7 +231,7 @@ export default {
         if (item.id != 0) tag.push(item.id)
       }
 
-      api.addMatters({
+      api.addMatter({
         content: this.form.content,
         state: this.form.state,
         tag

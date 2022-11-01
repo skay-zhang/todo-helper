@@ -52,6 +52,9 @@ const sql = {
     edit: (id, date, content, state, tag, del) => {
       return `UPDATE "main"."matters" SET "date" = ${date},"content" = ${content},"state" = ${state},"tag" = ${tag},"del" = ${del} WHERE rowid = ${id};`
     },
+    update: (id,key,value) => {
+      return `UPDATE "main"."matters" SET "${key}" = ${value} WHERE rowid = ${id};`
+    },
     remove: id => {
       return `DELETE FROM "main"."matters" WHERE rowid = ${id};`
     },

@@ -14,6 +14,7 @@ import { CloseOutlined } from '@ant-design/icons-vue';
 export default {
   name: "AppHead",
   components: { CloseOutlined },
+  emits: ['close'],
   props: {
     mode: {
       type: String,

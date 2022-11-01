@@ -266,3 +266,24 @@ body {
   padding-left: 0;
   padding-top: 0;
 }
+
+.change-tips{
+  width: 370px !important;
+  margin: 0 auto;
+  padding: 0;
+  top: 27px;
+}
+
+.change-tips .ant-modal-content{
+  background-color: #414141;
+  border-radius: 10px;
+}
+
+.change-tips .ant-modal-body{
+  padding: 20px 20px 15px 20px;
+}
+
+.change-tips .ant-modal-confirm-title,
+.change-tips .ant-modal-confirm-content{
+  color: #f4f4f4 !important;
+}
