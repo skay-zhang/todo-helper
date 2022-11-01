@@ -60,5 +60,23 @@ export default {
             method: 'POST',
             data
         })
+    },
+    searchTags: keyword => {
+        let data = new URLSearchParams();
+        data.append('keyword', keyword);
+        return request({
+            url: '/tag/search',
+            method: 'POST',
+            data
+        })
+    },
+    addTag: keyword => {
+        let data = new URLSearchParams();
+        data.append('keyword', keyword);
+        return request({
+            url: '/tag/add',
+            method: 'POST',
+            data
+        })
     }
 }

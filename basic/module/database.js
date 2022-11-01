@@ -40,20 +40,10 @@ const database = {
     let cache = {};
     db = new sqlite.Database('zero.db');
     db.serialize(() => {
-      db.parallelize(() => {
-        // 获取标签列表
-        db.get(sql.tags.getList, (err, res) => {
-          database.saveCache(cache, 3, 'tags', res ? res : [], callback);
-        })
-        // 获取分组列表
-        db.get(sql.group.getList, (err, res) => {
-          database.saveCache(cache, 3, 'group', res ? res : [], callback);
-        })
-        // 获取最近三条事项
-        db.all(sql.matters.getList(null, null, null, null, 3, 1, 'DESC'), (err, res) => {
-          database.saveCache(cache, 3, 'matters', res ? res : [], callback);
-        })
-      });
+      // 获取最近三条事项
+      db.all(sql.matters.getList(null, null, null, null, 3, 1, 'DESC'), (err, res) => {
+        callback(err ? false : true, res)
+      })
     });
     db.close();
   },
@@ -83,6 +73,27 @@ const database = {
       })
     });
     db.close();
+  },
+  searchTags(key, callback) {
+    db = new sqlite.Database('zero.db');
+    db.serialize(() => {
+      db.all(sql.tags.search(key), (err, res) => {
+        callback(err ? false : true, res)
+      })
+    });
+    db.close();
+  },
+  addTag(name,isDefault, callback) {
+    db = new sqlite.Database('zero.db');
+    db.serialize(() => {
+      db.all(sql.tags.add(name,isDefault), (err, res) => {
+        if(err) callback(false, res)
+        db.get(sql.tags.getIdByName(name), (error, sub) => {
+          callback(error ? false : true, sub)
+        })
+        db.close();
+      })
+    });
   }
 }
 

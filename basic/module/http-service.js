@@ -69,21 +69,23 @@ function controller(dev, db, safe) {
   // 初始化添加页面
   serve.get('/api/add', (_req, res) => {
     db.getInitData((state, data) => {
-      if (data && data.matters) {
-        for (let i in data.matters) {
-          let item = data.matters[i];
+      let map = {};
+      if (data) {
+        for (let i in data) {
+          let item = data[i];
           if (item.del === null) delete item.del;
           if (item.tag === null || item.tag === '') delete item.tag;
         }
-      }
-      data.safe = safe === false ? false : true
-      if(data.matters){
-        for(let i in data.matters){
-          let item = data.matters[i];
+        map.matters = data
+      } else map.matters = []
+      map.safe = safe === false ? false : true
+      if (map.matters) {
+        for (let i in map.matters) {
+          let item = map.matters[i];
           item.content = decrypt(safe, item.content);
         }
       }
-      ret(res, state, data)
+      ret(res, state, map)
     })
   });
   // 添加事项
@@ -128,6 +130,23 @@ function controller(dev, db, safe) {
   // 移除事项
   serve.delete('/api/item', (_req, res) => {
     ret(res, true, 'ok')
+  });
+  // 搜索标签
+  serve.post('/api/tag/search', (req, res) => {
+    let body = req.body;
+    if (body.keyword == undefined || body.keyword == '') return ret(res, false, '标签内容不能为空')
+    db.searchTags(body.keyword, (state, data) => {
+      ret(res, state, data)
+    })
+  });
+  // 添加标签
+  serve.post('/api/tag/add', (req, res) => {
+    let body = req.body;
+    if (body.keyword == undefined || body.keyword == '') return ret(res, false, '标签内容不能为空')
+    db.addTag(body.keyword, false, (state, data) => {
+      if (state && data && data.id) data = data.id;
+      ret(res, state, data)
+    })
   });
   serve.use(express.static(path.join(__dirname, dev ? '../client' : '../../public/client')))
   return serve;

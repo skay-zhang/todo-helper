@@ -55,7 +55,7 @@ async function createManagementWindow() {
     })
   } else {
     mwin.loadURL(url + '?mode=management&platform=' + process.platform)
-    // mwin.webContents.openDevTools()
+    mwin.webContents.openDevTools()
   }
 }
 // 创建快速创建窗口
@@ -88,7 +88,7 @@ async function createFastAddWindow() {
     })
   } else {
     fwin.loadURL(url + '?mode=fastAdd&platform=' + process.platform)
-    // fwin.webContents.openDevTools()
+    fwin.webContents.openDevTools()
   }
 }
 // 初始化菜单
@@ -98,7 +98,7 @@ async function initMenu() {
     {
       label: '快速创建事项',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+C',
+      accelerator: 'CmdOrCtrl+C',
       click: () => {
         if (fwin == null || fwin.isDestroyed()) createFastAddWindow();
         else fwin.show()
@@ -108,7 +108,7 @@ async function initMenu() {
     {
       label: '事项管理',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+A',
+      accelerator: 'CmdOrCtrl+A',
       click: () => {
         if (mwin == null || mwin.isDestroyed()) createManagementWindow();
         else mwin.show()
@@ -118,25 +118,25 @@ async function initMenu() {
     {
       label: '导出月报',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+M',
+      accelerator: 'CmdOrCtrl+M',
       click: () => {
-        console.log('[app] Listened to CommandOrControl+M')
+        console.log('[app] Listened to CmdOrCtrl+M')
       }
     },
     {
       label: '导出周报',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+W',
+      accelerator: 'CmdOrCtrl+W',
       click: () => {
-        console.log('[app] Listened to CommandOrControl+W')
+        console.log('[app] Listened to CmdOrCtrl+W')
       }
     },
     {
       label: '导出日报',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+D',
+      accelerator: 'CmdOrCtrl+D',
       click: () => {
-        console.log('[app] Listened to CommandOrControl+D')
+        console.log('[app] Listened to CmdOrCtrl+D')
       }
     },
     { type: 'separator' },
@@ -144,9 +144,9 @@ async function initMenu() {
     {
       label: '偏好设置',
       registerAccelerator: true,
-      accelerator: 'CommandOrControl+S',
+      accelerator: 'CmdOrCtrl+S',
       click: () => {
-        console.log('[app] Listened to CommandOrControl+S')
+        console.log('[app] Listened to CmdOrCtrl+S')
       }
     },
     { label: '关于', role: 'about' },
@@ -172,7 +172,7 @@ async function init() {
     website: 'https://github.com/skay-zhang/todo-helper',
     iconPath: join(process.env.PUBLIC, 'logo/logo.png')
   })
-  globalShortcut.register('Ctrl+CommandOrControl+T', () => {
+  globalShortcut.register('Ctrl+CmdOrCtrl+T', () => {
     if (fwin == null || fwin.isDestroyed()) createFastAddWindow();
     else fwin.show()
   });

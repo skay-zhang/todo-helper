@@ -45,16 +45,19 @@
           </a-select-option>
         </a-select>
         <div class="text-small mr-10 ml-10">标签</div>
-        <a-select placeholder="主要标签" allowClear showSearch v-model:value="form.tag[0]" size="small" :disabled="loaidng"
-          style="width: 95px">
-          <a-select-option v-for="item in config.tags" :value="item.id">
-            {{ item.value }}
+        <a-select placeholder="主要标签" size="small" allowClear showSearch v-model:value="config.tag[0]"
+          :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="loaidng" style="width: 95px"
+          class="mr-5" @search="key => search(0, key)" @change="i => changeTag(0, i)" @keydown.enter.native="keydown">
+          <a-select-option v-for="item in config.tags[0]" :value="item.id">
+            {{ item.name }}
           </a-select-option>
         </a-select>
-        <a-select placeholder="辅助标签" allowClear showSearch v-model:value="form.tag[1]" :disabled="!form.tag[0]"
-          size="small" style="width: 95px">
-          <a-select-option v-for="item in config.tags" :value="item.id" :disabled="loaidng || item.id == form.tag[0]">
-            {{ item.value }}
+        <a-select placeholder="辅助标签" size="small" allowClear showSearch v-model:value="config.tag[1]"
+          :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="config.tag[0] == undefined"
+          style="width: 95px" @search="key => search(1, key)" @change="i => changeTag(1, i)" @keydown.enter.native="keydown">
+          <a-select-option v-for="item in config.tags[1]" :value="item.id"
+            :disabled="loaidng || item.name == form.tags[0]">
+            {{ item.name }}
           </a-select-option>
         </a-select>
       </div>
@@ -78,7 +81,7 @@ export default {
     form: {
       content: '',
       state: 2,
-      tag: []
+      tags: []
     },
     config: {
       state: [{
@@ -91,16 +94,8 @@ export default {
         id: 3,
         value: '已办'
       }],
-      tags: [{
-        id: 1,
-        value: '测试标签'
-      }, {
-        id: 2,
-        value: '标签1'
-      }, {
-        id: 3,
-        value: '超级长的一个标签'
-      }]
+      tags: [],
+      tag: []
     }
   }),
   methods: {
@@ -113,7 +108,6 @@ export default {
               item.date = util.distance(item.date);
             }
           }
-          this.config.tags = res.result.tags;
           this.matters = res.result.matters;
           this.safe = res.result.safe;
           this.$forceUpdate();
@@ -129,6 +123,65 @@ export default {
     keydown(e) {
       if (e.ctrlKey && e.keyCode == 13) this.submit()
     },
+    search(level, value) {
+      api.searchTags(value).then(res => {
+        if (res.state) {
+          let exist = false;
+          for (let i in res.result) {
+            if (res.result[i].name == value) {
+              exist = true;
+              break;
+            }
+          }
+          if (!exist) {
+            res.result.push({
+              id: 0,
+              name: value,
+              default: false
+            })
+          }
+          this.config.tags[level] = res.result
+        } else this.config.tags[level] = []
+      }).catch(err => {
+        this.config.tags[level] = []
+        this.$message.error({
+          content: '查询失败,' + err
+        })
+      })
+    },
+    changeTag(level, index) {
+      let tag = this.config.tags[level][index];
+      this.config.tag[level] = tag.id;
+      this.form.tags[level] = tag;
+    },
+    addTag() {
+      for (let i in this.form.tags) {
+        let tag = this.form.tags[i];
+        if (tag == null || tag == undefined) continue;
+        if (tag.id == 0) {
+          console.log('[ui] Add tag ' + tag.name)
+          api.addTag(tag.name).then(res => {
+            if (res.state) {
+              this.form.tags[i].id = res.result;
+              if (i == this.form.tags.length - 1) this.submit();
+              else this.addTag();
+            } else {
+              this.loaidng = false;
+              this.$message.error({
+                content: res.result ? res.result : '标签创建失败'
+              })
+            }
+          }).catch(err => {
+            this.loaidng = false;
+            this.$message.error({
+              content: '标签创建失败,' + err
+            })
+          })
+          return false;
+        }
+      }
+      return true;
+    },
     submit() {
       if (this.form.content.trim() === '') {
         this.$message.error({
@@ -136,8 +189,20 @@ export default {
         })
         return;
       }
-      this.loaidng = true;
-      api.addMatters(this.form).then(res => {
+      this.loading = true;
+      if (!this.addTag()) return;
+      let tag = [];
+      for (let i in this.form.tags) {
+        let item = this.form.tags[i];
+        if (item == null || item == undefined) continue;
+        if (item.id != 0) tag.push(item.id)
+      }
+
+      api.addMatters({
+        content: this.form.content,
+        state: this.form.state,
+        tag
+      }).then(res => {
         if (res.state) {
           this.$message.success({
             content: '创建成功'
@@ -145,13 +210,13 @@ export default {
           setTimeout(() => this.close(), 1500)
         } else {
           this.loaidng = false;
-          this.$message.success({
+          this.$message.error({
             content: res.result ? res.result : '创建失败'
           })
         }
       }).catch(err => {
         this.loaidng = false;
-        this.$message.success({
+        this.$message.error({
           content: '创建失败,' + err
         })
       })

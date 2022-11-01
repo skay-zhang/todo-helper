@@ -23,8 +23,14 @@ const sql = {
     remove: id => {
       return `DELETE FROM "main"."tags" WHERE rowid = ${id};`
     },
+    search: key => {
+      return `SELECT "id","name","default" FROM "tags" WHERE "name" LIKE '%${key}%' LIMIT 0,5;`;
+    },
+    getIdByName: key => {
+      return `SELECT "id" FROM "tags" WHERE "name" = '${key}' LIMIT 0,1;`;
+    },
     getNumber: `SELECT COUNT(1) AS 'number' FROM "tags";`,
-    getList: `SELECT "tags"."id","tags"."name","tags"."default" FROM "tags";`
+    getList: `SELECT "id","name","default" FROM "tags";`
   },
   group: {
     add: (name, rule) => {
