@@ -33,20 +33,20 @@
       <loading-outlined style="font-size: 24px;" />
       <div class="ml-10">正在初始化...</div>
     </div>
-    <a-textarea ref="content" v-model:value="form.content" :disabled="loaidng"
+    <a-textarea ref="content" v-model:value="form.content" :disabled="loading"
       placeholder="请输入事项内容, 限1000字以内, 按下 Ctrl+Enter 即可提交..." :auto-size="{ minRows: 5, maxRows: 5 }"
       @keydown.enter.native="keydown" />
     <div class="pa-10 flex align-center justify-between">
       <div class="flex align-center">
         <div class="text-small mr-10">状态</div>
-        <a-select v-model:value="form.state" size="small" :disabled="loaidng" style="width: 80px">
+        <a-select v-model:value="form.state" size="small" :disabled="loading" style="width: 80px">
           <a-select-option v-for="item in config.state" :value="item.id">
             {{ item.value }}
           </a-select-option>
         </a-select>
         <div class="text-small mr-10 ml-10">标签</div>
         <a-select placeholder="主要标签" size="small" allowClear showSearch v-model:value="config.tag[0]"
-          :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="loaidng" style="width: 95px"
+          :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="loading" style="width: 95px"
           class="mr-5" @search="key => search(0, key)" @change="i => changeTag(0, i)" @keydown.enter.native="keydown">
           <a-select-option v-for="item in config.tags[0]" :value="item.id">
             {{ item.name }}
@@ -57,14 +57,14 @@
           style="width: 95px" @search="key => search(1, key)" @change="i => changeTag(1, i)"
           @keydown.enter.native="keydown">
           <a-select-option v-for="item in config.tags[1]" :value="item.id"
-            :disabled="loaidng || item.name == form.tags[0]">
+            :disabled="loading || item.name == form.tags[0]">
             {{ item.name }}
           </a-select-option>
         </a-select>
       </div>
       <div>
-        <a-button class="mr-5" size="small" :disabled="loaidng" @click="close">取消</a-button>
-        <a-button type="primary" size="small" :loading="loaidng" @click="submit">完成</a-button>
+        <a-button class="mr-5" size="small" :disabled="loading" @click="close">取消</a-button>
+        <a-button type="primary" size="small" :loading="loading" @click="submit">完成</a-button>
       </div>
     </div>
   </div>
@@ -78,7 +78,7 @@ export default {
   name: "pageFastAdd",
   components: { LoadingOutlined },
   data: () => ({
-    loaidng: false,
+    loading: false,
     matters: null,
     form: {
       content: '',
@@ -115,8 +115,8 @@ export default {
           this.safe = res.result.safe;
         }
       }).catch(err => {
-        this.loaidng = false;
-        this.$message.success({
+        this.loading = false;
+        this.$message.err({
           content: '初始化失败,' + err
         })
       });
@@ -199,13 +199,13 @@ export default {
               if (i == this.form.tags.length - 1) this.submit();
               else this.addTag();
             } else {
-              this.loaidng = false;
+              this.loading = false;
               this.$message.error({
                 content: res.result ? res.result : '标签创建失败'
               })
             }
           }).catch(err => {
-            this.loaidng = false;
+            this.loading = false;
             this.$message.error({
               content: '标签创建失败,' + err
             })
@@ -242,13 +242,13 @@ export default {
           })
           setTimeout(() => this.close(), 1500)
         } else {
-          this.loaidng = false;
+          this.loading = false;
           this.$message.error({
             content: res.result ? res.result : '创建失败'
           })
         }
       }).catch(err => {
-        this.loaidng = false;
+        this.loading = false;
         this.$message.error({
           content: '创建失败,' + err
         })

@@ -157,6 +157,12 @@ function controller(dev, db, safe) {
       ret(res, state, data)
     })
   });
+  // 获取标签列表
+  serve.get('/api/tag/list', (_req, res) => {
+    db.getTagList((state, data) => {
+      ret(res, state, data)
+    })
+  });
   serve.use(express.static(path.join(__dirname, dev ? '../client' : '../../public/client')))
   return serve;
 }

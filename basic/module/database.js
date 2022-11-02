@@ -1,12 +1,13 @@
 import driver from "sqlite3";
 import sql from "./sql";
+let path = 'zero.db';
 let sqlite;
 let db;
 
 const database = {
   init: () => {
     if (sqlite == undefined) sqlite = driver.verbose();
-    if (db == undefined) db = new sqlite.Database('zero.db');
+    if (db == undefined) db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.queryTabel, (err, res) => {
         if (err) throw err
@@ -38,7 +39,7 @@ const database = {
   },
   getInitData(callback) {
     let cache = {};
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       // 获取最近三条事项
       db.all(sql.matters.getList(null, null, null, null, 3, 1, 'DESC'), (err, res) => {
@@ -48,7 +49,7 @@ const database = {
     db.close();
   },
   addMatter(content, state, tag, callback) {
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.matters.add(content, state, tag), (err, res) => {
         callback(err ? false : true, res)
@@ -57,7 +58,7 @@ const database = {
     db.close();
   },
   getMattersNumber(start, end, state, tag, del, callback) {
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       db.get(sql.matters.getNumber(start, end, state, tag, del), (err, res) => {
         callback(err ? false : true, res)
@@ -66,7 +67,7 @@ const database = {
     db.close();
   },
   getMattersList(start, end, state, tag, number, page, sort, del, callback) {
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.matters.getList(start, end, state, tag, number, page, sort, del), (err, res) => {
         callback(err ? false : true, res)
@@ -75,7 +76,7 @@ const database = {
     db.close();
   },
   updateMatter(id, key, value, callback) {
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.matters.update(id, key, value), (err, res) => {
         callback(err ? false : true, res)
@@ -84,7 +85,7 @@ const database = {
     db.close();
   },
   searchTags(key, callback) {
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.tags.search(key), (err, res) => {
         callback(err ? false : true, res)
@@ -93,7 +94,7 @@ const database = {
     db.close();
   },
   addTag(name, isDefault, callback) {
-    db = new sqlite.Database('zero.db');
+    db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.tags.add(name, isDefault), (err, res) => {
         if (err) callback(false, res)
@@ -103,6 +104,15 @@ const database = {
         db.close();
       })
     });
+  },
+  getTagList(callback){
+    db = new sqlite.Database(path);
+    db.serialize(() => {
+      db.all(sql.tags.getList, (err, res) => {
+        callback(err ? false : true, res)
+      })
+    });
+    db.close();
   }
 }
 

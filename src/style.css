@@ -225,6 +225,10 @@ body {
   color: #fff;
 }
 
+.ant-empty{
+  margin: 180px 0;
+}
+
 .ant-select-item-option-disabled,
 .ant-empty-description,
 .ant-empty-small {

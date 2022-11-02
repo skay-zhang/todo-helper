@@ -31,7 +31,7 @@ async function createManagementWindow() {
   mwin = new BrowserWindow({
     title: '待办助手',
     icon: join(process.env.PUBLIC, 'favicon.ico'),
-    width: 500,
+    width: 400,
     height: 520,
     resizable: false,
     skipTaskbar: false,

@@ -88,5 +88,11 @@ export default {
             method: 'POST',
             data
         })
+    },
+    getTagList: () => {
+        return request({
+            url: '/tag/list',
+            method: 'GET'
+        })
     }
 }

@@ -74,7 +74,7 @@ const sql = {
       if (end) screen += `"date" <= '${end}' AND `
       if (state > 0) screen += `"state" = ${state} AND `
       if (tag) screen += `"tag" LIKE '%${tag}%' AND `
-      if (del === 1) screen += '"del" = 1'
+      if (del === 1 || del === '1') screen += '"del" = 1'
       else screen += '("del" IS NULL OR "del" = 0)'
       return screen;
     }
