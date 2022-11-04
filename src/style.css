@@ -291,3 +291,7 @@ body {
 .change-tips .ant-modal-confirm-content{
   color: #f4f4f4 !important;
 }
+
+.ant-spin-dot-item{
+  background-color: #ffffff;
+}
