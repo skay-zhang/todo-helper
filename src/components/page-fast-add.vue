@@ -91,10 +91,10 @@ export default {
         value: '待办'
       }, {
         id: 2,
-        value: '正在做'
+        value: '进行中'
       }, {
         id: 3,
-        value: '已办'
+        value: '已完成'
       }],
       tags: [],
       tag: []
@@ -153,8 +153,10 @@ export default {
     },
     changeTag(level, index) {
       let tag = this.config.tags[level][index];
-      this.config.tag[level] = tag.id;
-      this.form.tags[level] = tag;
+      if(tag.id){
+        this.config.tag[level] = tag.id;
+        this.form.tags[level] = tag;
+      }
     },
     changeState(info) {
       let title = '';
@@ -312,5 +314,21 @@ textarea:focus {
 
 .tips {
   max-width: 260px;
+}
+
+@media (prefers-color-scheme: light) {
+  textarea {
+    background-color: #fff;
+    color: #333;
+  }
+
+  textarea[disabled] {
+    background-color: #fff;
+    color: #333;
+  }
+
+  .ant-carousel :deep(.slick-slide) {
+    color: #333;
+  }
 }
 </style>

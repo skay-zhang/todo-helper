@@ -19,9 +19,7 @@
     </div>
     <div class="content">
       <matter-list ref="matterList" v-if="menu != 'setting'" :type="menu" :tags="tags" @loading="listLoading" />
-      <template v-else>
-        <div>设置</div>
-      </template>
+      <setting v-else />
       <div class="flex align-center justify-center loading" :class="{show:loading.opacity}" v-if="loading.show">
         <a-spin />
       </div>
@@ -35,6 +33,7 @@ import {
   CaretDownOutlined, ClockCircleOutlined, CarryOutOutlined, DeleteOutlined
 } from '@ant-design/icons-vue';
 import MatterList from './matter-list.vue'
+import Setting from './setting.vue'
 import api from '../plugin/api'
 
 export default {
@@ -42,7 +41,7 @@ export default {
   components: {
     CalendarOutlined, SettingOutlined, AlertOutlined, CaretUpOutlined, MinusOutlined,
     CaretDownOutlined, ClockCircleOutlined, CarryOutOutlined, DeleteOutlined,
-    MatterList
+    MatterList, Setting
   },
   data: () => ({
     menu: '',
@@ -98,7 +97,7 @@ export default {
         }, 300)
       }
     },
-    listLoading(data){
+    listLoading(data) {
       this.switchLoading(data.state)
     }
   },
@@ -141,10 +140,9 @@ export default {
 }
 
 .content {
+  overflow-y: overlay;
   overflow-x: hidden;
   position: relative;
-  overflow-y: auto;
-  padding: 10px;
   height: 493px;
   width: 100%;
 }
@@ -162,6 +160,26 @@ export default {
 
 .loading.show {
   opacity: 1;
+}
+
+@media (prefers-color-scheme: light) {
+  #left-menu {
+    border-right: 1px solid #dedede;
+    background-color: #fff;
+  }
+
+  #left-menu .menu-item {
+    color: #bebebe;
+  }
+
+  #left-menu .menu-item.active,
+  #left-menu .menu-item:hover {
+    color: #333;
+  }
+
+  .loading {
+    background-color: #f4f4f4;
+  }
 }
 </style>
   

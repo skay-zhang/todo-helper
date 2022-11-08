@@ -1,7 +1,7 @@
 <template>
-  <a-empty v-if="number == 0" :image="img" description="暂无待办事项" />
+  <a-empty v-if="number == 0" :image="img" :description="'暂无'+name[type]+'事项'" />
   <div v-else>
-    <div class="flex align-center justify-between mb-10">
+    <div class="flex align-center justify-between pa-10">
       <div class="flex align-center">
         <a-button class="mr-5" size="small" shape="circle" @click="getMattersNumber()">
           <template #icon>
@@ -15,14 +15,30 @@
         <a-button type="primary" size="small">筛选</a-button>
       </div>
     </div>
-    <div class="card pa-10 mb-10" v-for="item in list" :key="'todo_' + item.id">
-      <div>{{ item.content }}</div>
-      <div class="flex align-center justify-between">
-        <div class="text-small text-gray">{{ item.distance }}</div>
-        <div class="flex align-center" v-if="item.tag && item.tag.length > 0">
-          <div class="todo-tag" v-for="tag in item.tag" :key="'todo_' + item.id + '_' + tag.id">
-            {{ tag.name }}
+    <div class="list">
+      <div class="card pa-10 mb-10" v-for="item in list" :key="'todo_' + item.id">
+        <div>{{ item.content }}</div>
+        <div class="flex align-center justify-between">
+          <div class="text-small text-gray">{{ item.distance }}</div>
+          <div class="flex align-center" v-if="item.tag && item.tag.length > 0">
+            <div class="todo-tag" v-for="tag in item.tag" :key="'todo_' + item.id + '_' + tag.id">
+              {{ tag.name }}
+            </div>
           </div>
+        </div>
+        <div class="tools flex align-center justify-between">
+          <div class="flex align-center">
+            <a-button class="mr-10" size="small" type="primary" v-if="item.state <= 2" @click="changeState(item, 3)">已完成
+            </a-button>
+            <a-button class="mr-10" size="small" v-if="item.state <= 1" @click="changeState(item, 2)">进行中</a-button>
+            <div v-if="item.state == 3">2022-01-01 11:20 已完成</div>
+          </div>
+          <a-button size="small" type="text" danger v-if="item.del">
+            <rollback-outlined /> 还原
+          </a-button>
+          <a-button size="small" type="text" danger v-else>
+            <delete-filled /> 删除
+          </a-button>
         </div>
       </div>
     </div>
@@ -30,13 +46,13 @@
 </template>
     
 <script>
-import { ReloadOutlined } from '@ant-design/icons-vue';
+import { ReloadOutlined, DeleteFilled, RollbackOutlined } from '@ant-design/icons-vue';
 import { Empty } from 'ant-design-vue';
 import util from '../plugin/util';
 import api from '../plugin/api';
 export default {
   name: "MatterList",
-  components: { ReloadOutlined },
+  components: { ReloadOutlined, DeleteFilled, RollbackOutlined },
   emits: ['loading'],
   props: {
     type: {
@@ -92,7 +108,7 @@ export default {
     },
     name: {
       todo: '待办',
-      progress: '条进行',
+      progress: '进行中',
       complete: '已完成',
       remove: '已删除',
     }
@@ -121,6 +137,7 @@ export default {
       })
     },
     getMattersList(mode) {
+      if (mode == undefined) mode = this.type;
       api.getMattersList(this.screen[mode]).then(res => {
         this.$emit('loading', { state: false });
         if (res.state) {
@@ -153,7 +170,38 @@ export default {
           content: '获取待办列表失败,' + err
         })
       })
-    }
+    },
+    changeState(info, next) {
+      let title = '';
+      if (next === 2) title = '此事项确认“正在进行”吗?'
+      else if (next === 3) title = '此事项确认“已完成”吗?'
+
+      this.$confirm({
+        class: 'change-tips',
+        content: `事项内容: ${info.content}`,
+        cancelText: '取消',
+        okText: '确认',
+        title,
+        onOk: () => {
+          api.updateMatterState(info.id, next).then(res => {
+            if (res.state) {
+              this.$message.success({
+                content: '状态修改成功'
+              })
+              this.getMattersList()
+            } else {
+              this.$message.error({
+                content: res.result ? res.result : '状态修改失败'
+              })
+            }
+          }).catch(err => {
+            this.$message.error({
+              content: '状态修改失败,' + err
+            })
+          })
+        }
+      })
+    },
   }
 }
 </script>
@@ -173,6 +221,65 @@ export default {
 .todo-tag:hover {
   background-color: #3d3d3d;
   color: #f4f4f4;
+}
+
+.list {
+  height: calc(520px - 71px);
+  overflow-y: overlay;
+  padding: 0 10px;
+}
+
+.card {
+  transition: all ease-out 0.3s;
+  position: relative;
+  cursor: pointer;
+}
+
+.card:hover {
+  background-color: #2a2a2a;
+  padding-bottom: 40px;
+}
+
+.tools {
+  border-top: 1px solid #4a4a4a;
+  transition: all ease-out 0.3s;
+  background-color: #202020;
+  padding: 5px 5px 0 5px;
+  position: absolute;
+  width: 100%;
+  bottom: 5px;
+  opacity: 0;
+  left: 0;
+}
+
+.card:hover .tools {
+  background-color: #2a2a2a;
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: light) {
+  .todo-tag {
+    background-color: #ededed;
+    color: #7f7f7f;
+  }
+
+  .todo-tag:hover {
+    background-color: #dbdbdb;
+    color: #333;
+  }
+
+  .card:hover {
+    background-color: #fafafa;
+  }
+
+  .tools {
+    border-top: 1px solid #eeeeee;
+    background-color: #fff;
+  }
+
+  .card:hover .tools {
+    background-color: #fff;
+  }
 }
 </style>
     

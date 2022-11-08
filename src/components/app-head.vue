@@ -63,5 +63,18 @@ export default {
 #win-control:active {
   background-color: red;
 }
+
+@media (prefers-color-scheme: light) {
+  #app-head {
+    border-bottom: 1px solid #dedede;
+    background-color: #f4f4f4;
+    color: #6c6c6c;
+  }
+
+  #win-control:hover,
+  #win-control:active {
+    background-color: red;
+  }
+}
 </style>
   
