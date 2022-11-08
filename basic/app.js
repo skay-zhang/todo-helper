@@ -180,7 +180,7 @@ async function init() {
     else fwin.show()
   });
   // 初始化数据库
-  database.init();
+  database.init(app.getPath('userData'));
   // 初始化安全服务
   let safe = safeStorage.isEncryptionAvailable();
   // 启动Http服务

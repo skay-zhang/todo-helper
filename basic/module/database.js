@@ -1,11 +1,13 @@
 import driver from "sqlite3";
 import sql from "./sql";
-let path = 'zero.db';
 let sqlite;
+let path;
 let db;
 
 const database = {
-  init: () => {
+  init: (home) => {
+    path = home + '/zero.db'
+    console.log('[database] File path: ' + path)
     if (sqlite == undefined) sqlite = driver.verbose();
     if (db == undefined) db = new sqlite.Database(path);
     db.serialize(() => {
@@ -105,7 +107,7 @@ const database = {
       })
     });
   },
-  getTagList(callback){
+  getTagList(callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.tags.getList, (err, res) => {
