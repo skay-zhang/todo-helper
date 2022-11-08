@@ -1,10 +1,10 @@
 <template>
     <div class="setting pa-10">
         <div class="card flex align-center mb-10">
-            <img class="logo" src="/logo/logo.png" />
+            <img class="logo" src="../assets//logo.png" />
             <div class="full-width">
                 <div class="title">待办助手</div>
-                <div class="text-small text-gray mb-5">cc.stacks.todo_helper</div>
+                <div class="text-small text-gray mb-5">cc.stacks.todo.helper</div>
                 <div class="flex align-center">
                     <div class="text-small mr-10">v1.0.0</div>
                     <a-button type="text" size="small">检查更新</a-button>

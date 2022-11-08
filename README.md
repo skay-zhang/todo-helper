@@ -19,4 +19,4 @@
 * Electron: 客户端运行基座
 * Vite + Vue: 页面开发和编译工具
 * Express: 跨环境和跨窗口通讯
-* Dexie: 数据库工具
+* SQLite: 数据库工具

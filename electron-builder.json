@@ -1,4 +1,5 @@
 {
+  "productName": "Todo Helper",
   "appId": "cc.stacks.todo.helper",
   "asar": true,
   "directories": {
@@ -9,12 +10,15 @@
     "dist"
   ],
   "mac": {
+    "icon": "public/logo/logo.png",
     "artifactName": "${productName}_${version}.${ext}",
     "target": [
       "dmg"
     ]
   },
   "win": {
+    "icon": "public/logo/logo.ico",
+    "artifactName": "${productName}_${version}.${ext}",
     "target": [
       {
         "target": "nsis",
@@ -22,8 +26,7 @@
           "x64"
         ]
       }
-    ],
-    "artifactName": "${productName}_${version}.${ext}"
+    ]
   },
   "nsis": {
     "oneClick": false,
