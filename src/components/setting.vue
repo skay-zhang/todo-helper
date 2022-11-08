@@ -1,7 +1,7 @@
 <template>
     <div class="setting pa-10">
         <div class="card flex align-center mb-10">
-            <img class="logo" src="../assets//logo.png" />
+            <img class="logo" :src="'./logo/logo.png'" />
             <div class="full-width">
                 <div class="title">待办助手</div>
                 <div class="text-small text-gray mb-5">cc.stacks.todo.helper</div>
@@ -92,9 +92,7 @@ export default {
             progress: true,
             complete: false
         }
-    }),
-    methods: {
-    }
+    })
 }
 </script>
     
