@@ -2,7 +2,7 @@ process.env.DIST_ELECTRON = join(__dirname, '..')
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_ELECTRON, './public')
 
-import { app, BrowserWindow, globalShortcut, Tray, Menu, ipcMain, safeStorage } from 'electron'
+import { app, BrowserWindow, globalShortcut, Tray, Menu, ipcMain, safeStorage, nativeTheme } from 'electron'
 import database from './module/database'
 import http from './module/http-service'
 import { release } from 'os'
@@ -23,6 +23,7 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 let mwin = null
 let fwin = null
 let tray = null
+let isDark = false;
 const preload = join(__dirname, './preload.js')
 const indexHtml = join(process.env.DIST, 'index.html')
 const url = process.env.VITE_DEV_SERVER_URL
@@ -30,7 +31,6 @@ const url = process.env.VITE_DEV_SERVER_URL
 async function createManagementWindow() {
   mwin = new BrowserWindow({
     title: '待办助手',
-    icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 400,
     height: 520,
     resizable: false,
@@ -39,6 +39,7 @@ async function createManagementWindow() {
     fullscreenable: false,
     titleBarStyle: 'hidden',
     backgroundColor: '#131313',
+    icon: join(process.env.PUBLIC, 'logo/tray-' + (isDark ? 'dark' : 'light') + '.png'),
     webPreferences: {
       preload,
       nodeIntegration: false,
@@ -72,6 +73,7 @@ async function createFastAddWindow() {
     fullscreenable: false,
     titleBarStyle: 'hidden',
     backgroundColor: '#131313',
+    icon: join(process.env.PUBLIC, 'logo/tray-' + (isDark ? 'dark' : 'light') + '.png'),
     webPreferences: {
       preload,
       nodeIntegration: false,
@@ -93,7 +95,7 @@ async function createFastAddWindow() {
 }
 // 初始化菜单
 async function initMenu() {
-  tray = new Tray(join(process.env.PUBLIC, 'logo/tray.png'));
+  tray = new Tray(join(process.env.PUBLIC, 'logo/tray-' + (isDark ? 'dark' : 'light') + '.png'));
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '快速创建事项',
@@ -160,6 +162,7 @@ async function initMenu() {
 }
 // 应用初始化
 async function init() {
+  isDark = nativeTheme.shouldUseDarkColors;
   // MacOS 不显示在dock中
   if (process.platform !== 'win32')
     app.setActivationPolicy('accessory');
@@ -189,6 +192,14 @@ async function init() {
 app.whenReady().then(init)
 // ==================== 以下为事件监听部分 ==================== //
 
+// 监控主题变化
+nativeTheme.on('updated', () => {
+  isDark = nativeTheme.shouldUseDarkColors;
+  let iconPath = join(process.env.PUBLIC, 'logo/tray-' + (isDark ? 'dark' : 'light') + '.png');
+  if(mwin) mwin.setIcon(iconPath);
+  if(fwin) fwin.setIcon(iconPath);
+  if(tray) tray.setImage(iconPath);
+})
 // 窗口全部关闭
 app.on('window-all-closed', e => e.preventDefault())
 // 尝试关闭应用
