@@ -35,28 +35,28 @@
     </div>
     <a-textarea ref="content" v-model:value="form.content" :disabled="loading"
       placeholder="请输入事项内容, 限1000字以内, 按下 Ctrl+Enter 即可提交..." :auto-size="{ minRows: 5, maxRows: 5 }"
-      @keydown.enter.native="keydown" />
+      v-on:keydown.enter="keydown" />
     <div class="pa-10 flex align-center justify-between">
       <div class="flex align-center">
         <div class="text-small mr-10">状态</div>
         <a-select v-model:value="form.state" size="small" :disabled="loading" style="width: 80px">
-          <a-select-option v-for="item in config.state" :value="item.id">
+          <a-select-option v-for="item in config.state" :key="item.id" :value="item.id">
             {{ item.value }}
           </a-select-option>
         </a-select>
         <div class="text-small mr-10 ml-10">标签</div>
         <a-select placeholder="主要标签" size="small" allowClear showSearch v-model:value="config.tag[0]"
           :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="loading" style="width: 95px"
-          class="mr-5" @search="key => search(0, key)" @change="i => changeTag(0, i)" @keydown.enter.native="keydown">
-          <a-select-option v-for="item in config.tags[0]" :value="item.id">
+          class="mr-5" @search="key => search(0, key)" @change="i => changeTag(0, i)" v-on:keydown.enter="keydown">
+          <a-select-option v-for="item in config.tags[0]" :key="item.id" :value="item.id">
             {{ item.name }}
           </a-select-option>
         </a-select>
         <a-select placeholder="辅助标签" size="small" allowClear showSearch v-model:value="config.tag[1]"
           :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="config.tag[0] == undefined"
           style="width: 95px" @search="key => search(1, key)" @change="i => changeTag(1, i)"
-          @keydown.enter.native="keydown">
-          <a-select-option v-for="item in config.tags[1]" :value="item.id"
+          v-on:keydown.enter="keydown">
+          <a-select-option v-for="item in config.tags[1]" :key="item.id" :value="item.id"
             :disabled="loading || item.name == form.tags[0]">
             {{ item.name }}
           </a-select-option>

@@ -95,12 +95,13 @@ async function createFastAddWindow() {
 }
 // 初始化菜单
 async function initMenu() {
+  let isWin =  process.platform === 'win32';
   tray = new Tray(join(process.env.PUBLIC, 'logo/tray-' + (isDark ? 'dark' : 'light') + '.png'));
   const contextMenu = Menu.buildFromTemplate([
     {
       label: '快速创建事项',
       registerAccelerator: true,
-      accelerator: 'CmdOrCtrl+C',
+      accelerator: isWin ? '':'CmdOrCtrl+C',
       click: () => {
         if (fwin == null || fwin.isDestroyed()) createFastAddWindow();
         else fwin.show()
@@ -110,7 +111,7 @@ async function initMenu() {
     {
       label: '事项管理',
       registerAccelerator: true,
-      accelerator: 'CmdOrCtrl+A',
+      accelerator: isWin ? '':'CmdOrCtrl+A',
       click: () => {
         if (mwin == null || mwin.isDestroyed()) createManagementWindow();
         else mwin.show()
@@ -120,7 +121,7 @@ async function initMenu() {
     {
       label: '导出月报',
       registerAccelerator: true,
-      accelerator: 'CmdOrCtrl+M',
+      accelerator: isWin ? '':'CmdOrCtrl+M',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+M')
       }
@@ -128,7 +129,7 @@ async function initMenu() {
     {
       label: '导出周报',
       registerAccelerator: true,
-      accelerator: 'CmdOrCtrl+W',
+      accelerator: isWin ? '':'CmdOrCtrl+W',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+W')
       }
@@ -136,7 +137,7 @@ async function initMenu() {
     {
       label: '导出日报',
       registerAccelerator: true,
-      accelerator: 'CmdOrCtrl+D',
+      accelerator: isWin ? '':'CmdOrCtrl+D',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+D')
       }
@@ -146,7 +147,7 @@ async function initMenu() {
     {
       label: '偏好设置',
       registerAccelerator: true,
-      accelerator: 'CmdOrCtrl+S',
+      accelerator: isWin ? '':'CmdOrCtrl+S',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+S')
       }
@@ -170,7 +171,7 @@ async function init() {
   app.setAboutPanelOptions({
     applicationName: '待办助手',
     applicationVersion: app.getVersion(),
-    copyright: 'Apache License',
+    copyright: 'Developed by Skay Zhang, using Apache License',
     authors: 'SkayZhang',
     website: 'https://github.com/skay-zhang/todo-helper',
     iconPath: join(process.env.PUBLIC, 'logo/logo.png')

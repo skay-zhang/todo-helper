@@ -59,7 +59,7 @@ function controller(dev, db, safe) {
     if (dev) {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Headers', 'content-type');
-      res.header('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
+      res.header('Access-Control-Allow-Methods', 'POST,GET,DELETE,OPTIONS');
     }
     if (req.method.toLowerCase() == 'options') res.send(200);
     else next();
@@ -137,8 +137,13 @@ function controller(dev, db, safe) {
     ret(res, true, 'ok')
   });
   // 移除事项
-  serve.delete('/api/item', (_req, res) => {
-    ret(res, true, 'ok')
+  serve.delete('/api/item', (req, res) => {
+    let body = req.body;
+    if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
+    if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
+    db.updateMatter(body.id, 'del', body.state, (state, data) => {
+      ret(res, state, data)
+    })
   });
   // 搜索标签
   serve.post('/api/tag/search', (req, res) => {

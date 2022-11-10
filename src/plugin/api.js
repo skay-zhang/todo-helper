@@ -61,6 +61,16 @@ export default {
             data
         })
     },
+    removeMatter: (id,state) =>{
+        let data = new URLSearchParams();
+        data.append('id', id);
+        data.append('state', state);
+        return request({
+            url: '/item',
+            method: 'DELETE',
+            data
+        })
+    },
     updateMatterState: (id, state) => {
         let data = new URLSearchParams();
         data.append('id', id);
