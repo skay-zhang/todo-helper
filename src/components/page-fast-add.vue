@@ -108,7 +108,7 @@ export default {
           if (res.result.matters) {
             for (let i in res.result.matters) {
               let item = res.result.matters[i];
-              item.date = util.distance(item.date);
+              item.date = util.distance(item.t4);
             }
           }
           this.matters = res.result.matters;
