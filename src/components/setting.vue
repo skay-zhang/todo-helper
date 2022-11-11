@@ -10,7 +10,7 @@
                     <a-button type="text" size="small">检查更新</a-button>
                 </div>
             </div>
-            <div class="github">
+            <div class="github" @click="openGithub">
                 <github-outlined />
             </div>
         </div>
@@ -92,7 +92,12 @@ export default {
             progress: true,
             complete: false
         }
-    })
+    }),
+    methods:{
+        openGithub(){
+            window.open('https://github.com/skay-zhang/todo-helper','github','width=1024,height=800,resizable=0')
+        }
+    }
 }
 </script>
     

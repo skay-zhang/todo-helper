@@ -1,5 +1,5 @@
 <template>
-  <a-empty v-if="number == 0" :image="img" :description="'暂无' + name[type] + '事项'" />
+  <a-empty style="margin-top:180px;" v-if="number == 0" :image="img" :description="'暂无' + name[type] + '事项'" />
   <div v-else>
     <div class="flex align-center justify-between pa-10">
       <div class="flex align-center">
@@ -12,7 +12,7 @@
       </div>
       <div>
         <a-button class="mr-5" size="small">清除</a-button>
-        <a-button type="primary" size="small">筛选</a-button>
+        <a-button type="primary" size="small" @click="openScreen">筛选</a-button>
       </div>
     </div>
     <div class="list">
@@ -46,6 +46,30 @@
     </div>
   </div>
   <matter-edit ref="edit" @update="getMattersNumber()" />
+  <a-modal v-model:visible="screen.show" :width="234" :closable="false" :footer="null" style="top: 25px;right: -75px;">
+    <div>
+      <div class="flex align-center mb-10">
+        <div class="text-small mr-10">开始日期</div>
+        <a-date-picker placeholder="请选择..." v-model:value="screen[screen.mode].start" />
+      </div>
+      <div class="flex align-center mb-10">
+        <div class="text-small mr-10">结束日期</div>
+        <a-date-picker placeholder="请选择..." v-model:value="screen[screen.mode].end" />
+      </div>
+      <div class="flex align-center mb-10">
+        <div class="text-small mr-10" style="width: 48px;">标签</div>
+        <a-select v-model:value="screen[screen.mode].tag" placeholder="请输入选择标签" style="width: 135px"></a-select>
+      </div>
+      <div class="flex align-center mb-10">
+        <div class="text-small mr-10" style="width: 75px;">内容</div>
+        <a-input v-model:value="screen[screen.mode].content" placeholder="请输入关键词" />
+      </div>
+      <div>
+        <a-button size="small">清除</a-button>
+        <a-button type="primary" class="float-right" size="small" @click="submitScreen">筛选</a-button>
+      </div>
+    </div>
+  </a-modal>
 </template>
     
 <script>
@@ -74,10 +98,13 @@ export default {
     number: 0,
     list: [],
     screen: {
+      show: false,
+      mode: 'todo',
       todo: {
         start: '',
         end: '',
         tag: '',
+        content: '',
         del: 0,
         state: 1,
         number: 10,
@@ -87,6 +114,7 @@ export default {
         start: '',
         end: '',
         tag: '',
+        content: '',
         del: 0,
         state: 2,
         number: 10,
@@ -96,6 +124,7 @@ export default {
         start: '',
         end: '',
         tag: '',
+        content: '',
         del: 0,
         state: 3,
         number: 10,
@@ -105,6 +134,7 @@ export default {
         start: '',
         end: '',
         tag: '',
+        content: '',
         del: 1,
         state: 0,
         number: 10,
@@ -176,6 +206,9 @@ export default {
           content: '获取待办列表失败,' + err
         })
       })
+    },
+    openScreen() {
+      this.screen.show = true;
     },
     changeState(info, next) {
       let title = '';
@@ -294,23 +327,6 @@ export default {
   opacity: 1;
 }
 
-textarea {
-  background-color: #2d2d2d;
-  color: #f4f4f4;
-  border: none;
-}
-
-textarea[disabled] {
-  background-color: #000;
-  color: #f4f4f4;
-  border: none;
-}
-
-textarea:focus {
-  box-shadow: none;
-  border: none;
-}
-
 @media (prefers-color-scheme: light) {
   .todo-tag {
     background-color: #ededed;
@@ -333,16 +349,6 @@ textarea:focus {
 
   .card:hover .tools {
     background-color: #fff;
-  }
-
-  textarea {
-    background-color: #fff;
-    color: #333;
-  }
-
-  textarea[disabled] {
-    background-color: #fff;
-    color: #333;
   }
 }
 </style>

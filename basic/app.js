@@ -144,14 +144,6 @@ async function initMenu() {
     },
     { type: 'separator' },
     { label: '检查更新' },
-    {
-      label: '偏好设置',
-      registerAccelerator: true,
-      accelerator: isWin ? '':'CmdOrCtrl+S',
-      click: () => {
-        console.log('[app] Listened to CmdOrCtrl+S')
-      }
-    },
     { label: '关于', role: 'about' },
     { label: '退出', role: 'quit' }
   ])
@@ -225,22 +217,6 @@ app.on('activate', () => {
   const allWindows = BrowserWindow.getAllWindows()
   if (allWindows.length) allWindows[0].focus()
   else createManagementWindow()
-})
-// 打开子窗口
-ipcMain.handle('open-win', (_event, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  })
-
-  if (app.isPackaged) childWindow.loadFile(indexHtml, { hash: arg })
-  else {
-    childWindow.loadURL(`${url}#${arg}`)
-    // childWindow.webContents.openDevTools({ mode: "undocked", activate: true })
-  }
 })
 // 关闭窗口
 ipcMain.on('close-window', (_event, name) => {
