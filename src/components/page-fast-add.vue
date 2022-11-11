@@ -48,16 +48,16 @@
         <a-select placeholder="主要标签" size="small" allowClear showSearch v-model:value="config.tag[0]"
           :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="loading" style="width: 95px"
           class="mr-5" @search="key => search(0, key)" @change="i => changeTag(0, i)" v-on:keydown.enter="keydown">
-          <a-select-option v-for="item in config.tags[0]" :key="item.id" :value="item.id">
+          <a-select-option v-for="(item,index) in config.tags[0]" :key="item.id" :value="index">
             {{ item.name }}
           </a-select-option>
         </a-select>
         <a-select placeholder="辅助标签" size="small" allowClear showSearch v-model:value="config.tag[1]"
-          :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="config.tag[0] == undefined"
-          style="width: 95px" @search="key => search(1, key)" @change="i => changeTag(1, i)"
-          v-on:keydown.enter="keydown">
-          <a-select-option v-for="item in config.tags[1]" :key="item.id" :value="item.id"
-            :disabled="loading || item.name == form.tags[0]">
+          :not-found-content="null" :filter-option="false" :show-arrow="false"
+          :disabled="loading || config.tag[0] == undefined" style="width: 95px" @search="key => search(1, key)"
+          @change="i => changeTag(1, i)" v-on:keydown.enter="keydown">
+          <a-select-option v-for="(item,index) in config.tags[1]" :key="item.id" :value="index"
+            :disabled="item.name == form.tags[0]">
             {{ item.name }}
           </a-select-option>
         </a-select>
@@ -152,10 +152,16 @@ export default {
       })
     },
     changeTag(level, index) {
-      let tag = this.config.tags[level][index];
-      if(tag.id){
-        this.config.tag[level] = tag.id;
-        this.form.tags[level] = tag;
+      if (index == undefined) {
+        delete this.config.tag[level];
+        delete this.form.tags[level];
+      } else {
+        let tag = this.config.tags[level][index];
+        if (tag == undefined) return false;
+        if (tag.id) {
+          this.config.tag[level] = tag.name;
+          this.form.tags[level] = tag;
+        } else this.form.tags[level] = tag;
       }
     },
     changeState(info) {

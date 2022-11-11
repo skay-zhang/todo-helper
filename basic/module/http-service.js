@@ -128,7 +128,8 @@ function controller(dev, db, safe) {
     let body = req.body;
     if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
     if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
-    db.updateMatterState(body.id, 't'+body.state, body.state, (state, data) => {
+    let state = parseInt(body.state);
+    db.updateMatterState(body.id, 't'+(state + 1), state, (state, data) => {
       ret(res, state, data)
     })
   });
@@ -142,7 +143,8 @@ function controller(dev, db, safe) {
     if (body.tag == undefined) body.tag = ''
     if (body.t2 == undefined) body.t2 = ''
     if (body.t3 == undefined) body.t3 = ''
-    db.editMatter(body.id, body.date, body.content, body.state, body.tag, body.t1, body.t2, body.t3, (state, data) => {
+    if (body.t4 == undefined) body.t4 = ''
+    db.editMatter(body.id, body.content, body.state, body.tag, body.t1, body.t2, body.t3, body.t4, (state, data) => {
       ret(res, state, data)
     })
   });

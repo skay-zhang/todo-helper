@@ -61,7 +61,7 @@ export default {
             data
         })
     },
-    removeMatter: (id,state) =>{
+    removeMatter: (id, state) => {
         let data = new URLSearchParams();
         data.append('id', id);
         data.append('state', state);
@@ -77,6 +77,22 @@ export default {
         data.append('state', state);
         return request({
             url: '/state',
+            method: 'POST',
+            data
+        })
+    },
+    editMatter: (form) => {
+        let data = new URLSearchParams();
+        data.append('id', form.id);
+        data.append('content', form.content);
+        data.append('state', form.state);
+        data.append('tag', JSON.stringify(form.tag));
+        if (form.t1 && form.t1 != 'null') data.append('t1', form.t1);
+        if (form.t2 && form.t2 != 'null') data.append('t2', form.t2);
+        if (form.t3 && form.t3 != 'null') data.append('t3', form.t3);
+        if (form.t4 && form.t4 != 'null') data.append('t4', form.t4);
+        return request({
+            url: '/item',
             method: 'POST',
             data
         })

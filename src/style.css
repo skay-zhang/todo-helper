@@ -396,6 +396,15 @@ body {
   padding: 0px;
 }
 
+.ant-picker-disabled {
+  background-color: #202020 !important;
+  color: #999 !important;
+}
+
+.ant-picker-input > input[disabled]{
+  color: #999 !important;
+}
+
 ::-webkit-scrollbar {
   height: 5px;
   width: 5px;
@@ -635,6 +644,10 @@ body {
     color: #333;
   }
 
+  .ant-picker-disabled {
+    background-color: #f8f8f8 !important;
+  }
+  
   ::-webkit-scrollbar-thumb {
     background-color: #d3d3d3;
   }

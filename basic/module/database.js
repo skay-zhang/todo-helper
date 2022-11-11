@@ -77,10 +77,10 @@ const database = {
     });
     db.close();
   },
-  editMatter(id, content, state, tag, t1, t2, t3, callback) {
+  editMatter(id, content, state, tag, t1, t2, t3, t4, callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {
-      db.all(sql.matters.edit(id, content, state, tag, t1, t2, t3, new Date().getTime()), (err, res) => {
+      db.all(sql.matters.edit(id, content, state, tag, t1, t2, t3, t4, new Date().getTime()), (err, res) => {
         callback(err ? false : true, res)
       })
     });

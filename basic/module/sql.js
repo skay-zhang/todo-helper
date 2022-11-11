@@ -49,14 +49,14 @@ const sql = {
     add: (content, state, tag) => {
       return `INSERT INTO "main"."matters" ("t1","content","state","tag") VALUES ('${new Date().getTime()}','${content}','${state}','${tag}');`;
     },
-    edit: (id, content, state, tag, t1, t2, t3, t5) => {
-      return `UPDATE "main"."matters" SET "content" = '${content}',"state" = '${state}',"tag" = '${tag}',"t1" = '${t1}',"t2" = '${t2}',"t3" = '${t3}',"t5" = '${t5}' WHERE rowid = ${id};`
+    edit: (id, content, state, tag, t1, t2, t3, t4, t5) => {
+      return `UPDATE "main"."matters" SET "content" = '${content}',"state" = '${state}',"tag" = '${tag}',"t1" = '${t1}',"t2" = '${t2}',"t3" = '${t3}',"t4" = '${t4}',"t5" = '${t5}' WHERE rowid = ${id};`
     },
     updateState: (id, step, state, date) => {
       return `UPDATE "main"."matters" SET "state" = '${state}', "${step}" = '${date}', "t5" = '${date}' WHERE rowid = ${id};`
     },
     updateDel: (id, del, date) => {
-      return `UPDATE "main"."matters" SET "del" = '${del}', "t4" = '${date}', "t5" = '${date}' WHERE rowid = ${id};`
+      return `UPDATE "main"."matters" SET "del" = '${del}', "t5" = '${date}' WHERE rowid = ${id};`
     },
     remove: id => {
       return `DELETE FROM "main"."matters" WHERE rowid = ${id};`
