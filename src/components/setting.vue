@@ -48,35 +48,6 @@
             <a-button class="mr-10">导入</a-button>
             <a-button class="mr-10">导出</a-button>
             <a-button class="mr-10" type="primary" danger>清空回收站</a-button>
-            <a-button>API</a-button>
-        </div>
-        <div class="card pa-10 mb-10">
-            <div class="flex align-center">
-                <div class="mr-10">端口: 22333</div>
-                <div class="ml-10">密钥: D1FM89F0X312R13F21</div>
-            </div>
-        </div>
-        <div class="card pa-10">
-            <div class="api-item flex align-center">
-                <div class="api-method post mr-10">POST</div>
-                <div class="api-name">获取事项数量</div>
-                <div>/api/matter/number</div>
-            </div>
-            <div class="api-item flex align-center">
-                <div class="api-method post mr-10">POST</div>
-                <div class="api-name">获取事项列表</div>
-                <div>/api/matter/list</div>
-            </div>
-            <div class="api-item flex align-center">
-                <div class="api-method post mr-10">POST</div>
-                <div class="api-name">更新事项状态</div>
-                <div>/api/matter/{id}</div>
-            </div>
-            <div class="api-item flex align-center">
-                <div class="api-method mr-10">GET</div>
-                <div class="api-name">获取事项详情</div>
-                <div>/api/matter/{id}</div>
-            </div>
         </div>
     </div>
 </template>

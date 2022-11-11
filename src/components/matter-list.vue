@@ -1,19 +1,17 @@
 <template>
+  <div class="float-right pa-10">
+    <a-button class="mr-5" size="small" @click="cleanScreen">清除</a-button>
+    <a-button type="primary" size="small" @click="openScreen">筛选</a-button>
+  </div>
   <a-empty style="margin-top:180px;" v-if="number == 0" :image="img" :description="'暂无' + name[type] + '事项'" />
   <div v-else>
-    <div class="flex align-center justify-between pa-10">
-      <div class="flex align-center">
-        <a-button class="mr-5" size="small" shape="circle" @click="getMattersNumber()">
-          <template #icon>
-            <reload-outlined />
-          </template>
-        </a-button>
-        <div>共 {{ number }} 条{{ name[type] }}事项</div>
-      </div>
-      <div>
-        <a-button class="mr-5" size="small">清除</a-button>
-        <a-button type="primary" size="small" @click="openScreen">筛选</a-button>
-      </div>
+    <div class="flex align-center pa-10">
+      <a-button class="mr-5" size="small" shape="circle" @click="getMattersNumber()">
+        <template #icon>
+          <reload-outlined />
+        </template>
+      </a-button>
+      <div>共 {{ number }} 条{{ name[type] }}事项</div>
     </div>
     <div class="list">
       <div class="card pa-10 mb-10" v-for="item in list" :key="'todo_' + item.id" @click="openEdit(item)">
@@ -50,22 +48,22 @@
     <div>
       <div class="flex align-center mb-10">
         <div class="text-small mr-10">开始日期</div>
-        <a-date-picker placeholder="请选择..." v-model:value="screen[screen.mode].start" />
+        <a-date-picker placeholder="请选择..." v-model:value="screen[mode].start" />
       </div>
       <div class="flex align-center mb-10">
         <div class="text-small mr-10">结束日期</div>
-        <a-date-picker placeholder="请选择..." v-model:value="screen[screen.mode].end" />
+        <a-date-picker placeholder="请选择..." v-model:value="screen[mode].end" />
       </div>
       <div class="flex align-center mb-10">
         <div class="text-small mr-10" style="width: 48px;">标签</div>
-        <a-select v-model:value="screen[screen.mode].tag" placeholder="请输入选择标签" style="width: 135px"></a-select>
+        <a-select v-model:value="screen[mode].tag" placeholder="请输入选择标签" style="width: 135px"></a-select>
       </div>
       <div class="flex align-center mb-10">
         <div class="text-small mr-10" style="width: 75px;">内容</div>
-        <a-input v-model:value="screen[screen.mode].content" placeholder="请输入关键词" />
+        <a-input v-model:value="screen[mode].content" placeholder="请输入关键词" />
       </div>
       <div>
-        <a-button size="small">清除</a-button>
+        <a-button size="small" @click="cleanScreen">清除</a-button>
         <a-button type="primary" class="float-right" size="small" @click="submitScreen">筛选</a-button>
       </div>
     </div>
@@ -78,6 +76,7 @@ import { Empty } from 'ant-design-vue';
 import MatterEdit from './matter-edit.vue';
 import util from '../plugin/util';
 import api from '../plugin/api';
+import dayjs from 'dayjs';
 
 export default {
   name: "MatterList",
@@ -94,12 +93,12 @@ export default {
     }
   },
   data: () => ({
-    img: Empty.PRESENTED_IMAGE_SIMPLE,
-    number: 0,
+    mode: '',
     list: [],
+    number: 0,
+    img: Empty.PRESENTED_IMAGE_SIMPLE,
     screen: {
       show: false,
-      mode: 'todo',
       todo: {
         start: '',
         end: '',
@@ -152,8 +151,10 @@ export default {
     getMattersNumber(mode) {
       this.$emit('loading', { state: true });
       if (mode == undefined) mode = this.type;
+      this.mode = mode;
       this.number = 0;
-      api.getMattersNumber(this.screen[mode]).then(res => {
+      let screen = this.buildScreen(mode);
+      api.getMattersNumber(screen).then(res => {
         if (res.state) {
           this.number = res.result;
           this.list = [];
@@ -173,7 +174,9 @@ export default {
     },
     getMattersList(mode) {
       if (mode == undefined) mode = this.type;
-      api.getMattersList(this.screen[mode]).then(res => {
+      this.mode = mode;
+      let screen = this.buildScreen(mode);
+      api.getMattersList(screen).then(res => {
         this.$emit('loading', { state: false });
         if (res.state) {
           for (let i in res.result) {
@@ -209,6 +212,57 @@ export default {
     },
     openScreen() {
       this.screen.show = true;
+    },
+    submitScreen() {
+      this.screen.show = false;
+      this.getMattersNumber();
+    },
+    cleanScreen() {
+      let cache = {
+        todo: {
+          start: '',
+          end: '',
+          tag: '',
+          content: '',
+          del: 0,
+          state: 1,
+          number: 10,
+          page: 1
+        },
+        progress: {
+          start: '',
+          end: '',
+          tag: '',
+          content: '',
+          del: 0,
+          state: 2,
+          number: 10,
+          page: 1
+        },
+        complete: {
+          start: '',
+          end: '',
+          tag: '',
+          content: '',
+          del: 0,
+          state: 3,
+          number: 10,
+          page: 1
+        },
+        remove: {
+          start: '',
+          end: '',
+          tag: '',
+          content: '',
+          del: 1,
+          state: 0,
+          number: 10,
+          page: 1
+        }
+      }
+      this.screen[this.mode] = JSON.parse(JSON.stringify(cache[this.mode]));
+      this.getMattersNumber();
+      this.screen.show = false;
     },
     changeState(info, next) {
       let title = '';
@@ -271,6 +325,13 @@ export default {
     },
     openEdit(item) {
       this.$refs.edit.open(item)
+    },
+    buildScreen(mode) {
+      let screen = JSON.parse(JSON.stringify(this.screen[mode]));
+      if (screen.start) screen.start = this.screen[mode].start.startOf('day').unix();
+      if (screen.end) screen.end = this.screen[mode].end.endOf('day').unix();
+      console.log(screen)
+      return screen;
     }
   }
 }

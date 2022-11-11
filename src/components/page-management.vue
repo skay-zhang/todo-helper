@@ -55,8 +55,14 @@ export default {
   methods: {
     switchPage(name) {
       if (this.menu == name) return false;
+      let wait = this.menu === 'setting';
       this.menu = name;
-      if (name !== 'setting') this.$refs.matterList.getMattersNumber(name);
+      if (wait) {
+        setTimeout(() => {
+          this.$refs.matterList.getMattersNumber(name);
+        }, 100);
+      } else if(name !== 'setting') this.$refs.matterList.getMattersNumber(name);
+
     },
     getTagList() {
       api.getTagList().then(res => {
