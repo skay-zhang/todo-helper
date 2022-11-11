@@ -77,10 +77,28 @@ const database = {
     });
     db.close();
   },
-  updateMatter(id, key, value, callback) {
+  editMatter(id, content, state, tag, t1, t2, t3, callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {
-      db.all(sql.matters.update(id, key, value), (err, res) => {
+      db.all(sql.matters.edit(id, content, state, tag, t1, t2, t3, new Date().getTime()), (err, res) => {
+        callback(err ? false : true, res)
+      })
+    });
+    db.close();
+  },
+  updateMatterState(id, step, state, callback) {
+    db = new sqlite.Database(path);
+    db.serialize(() => {
+      db.all(sql.matters.updateState(id, step, state, new Date().getTime()), (err, res) => {
+        callback(err ? false : true, res)
+      })
+    });
+    db.close();
+  },
+  updateMatterDel(id, del, callback) {
+    db = new sqlite.Database(path);
+    db.serialize(() => {
+      db.all(sql.matters.updateDel(id, del, new Date().getTime()), (err, res) => {
         callback(err ? false : true, res)
       })
     });

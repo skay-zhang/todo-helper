@@ -300,6 +300,10 @@ body {
   background-color: #ffffff;
 }
 
+.ant-drawer-content {
+  border-radius: 16px 0 0 16px;
+}
+
 .ant-drawer-header,
 .ant-drawer-content {
   background-color: #131313;
@@ -307,7 +311,7 @@ body {
 }
 
 .ant-drawer-footer {
-  border-color: #222;
+  border-color: #343434;
   padding: 10px;
 }
 
@@ -319,6 +323,77 @@ body {
 .ant-drawer-header,
 .ant-drawer-body {
   padding: 10px;
+}
+
+.ant-divider-horizontal.ant-divider-with-text {
+  border-top-color: #343434;
+  font-weight: normal;
+  font-size: 14px;
+  color: #f4f4f4;
+  margin: 15px 0;
+}
+
+.ant-picker-panel-container{
+  border-radius: 10px;
+}
+
+.ant-picker{
+  background-color: #2d2d2d;
+  border: none;
+}
+
+.ant-picker-input > input{
+  color: #f4f4f4;
+}
+
+.ant-picker-suffix{
+  color: #999;
+}
+
+.ant-drawer .ant-picker-clear{
+  background-color: #2d2d2d;
+  color: #f4f4f4;
+}
+
+.ant-picker-panel{
+  background-color: #2d2d2d !important;
+}
+
+.ant-picker-panel,
+.ant-picker-datetime-panel .ant-picker-time-panel,
+.ant-picker-time-panel-column:not(:first-child),
+.ant-picker-panel .ant-picker-footer,
+.ant-picker-header{
+  border-color: #000;
+}
+
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner{
+  background-color: #1890ff;
+}
+
+.ant-picker-cell:hover:not(.ant-picker-cell-in-view) .ant-picker-cell-inner, .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner,
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner:hover{
+  background-color: rgb(0, 58, 113);
+}
+
+.ant-picker-header,
+.ant-picker-cell,
+.ant-picker-content th,
+.ant-picker-header button,
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner{
+  color: #f4f4f4;
+}
+
+.ant-picker-date-panel{
+  width: 250px;
+}
+
+.ant-picker-time-panel-column{
+  width: 50px;
+}
+
+.ant-picker-date-panel .ant-picker-body{
+  padding: 0px;
 }
 
 ::-webkit-scrollbar {
@@ -488,7 +563,7 @@ body {
 
   .ant-drawer-header,
   .ant-drawer-content {
-    background-color: #fff;
+    background-color: #f4f4f4;
   }
 
   .ant-drawer-footer {
@@ -497,6 +572,66 @@ body {
 
   .ant-drawer-close,
   .ant-drawer-title {
+    color: #333;
+  }
+
+  .ant-divider-horizontal.ant-divider-with-text {
+    border-top-color: #e3e3e3;
+    color: #333;
+  }
+
+  .ant-picker-panel-container{
+    border-radius: 10px;
+  }
+  
+  .ant-picker{
+    background-color: #fff;
+    border: none;
+  }
+  
+  .ant-picker-input > input{
+    color: #333;
+  }
+  
+  .ant-picker-suffix{
+    color: #999;
+  }
+  
+  .ant-drawer .ant-picker-clear{
+    background-color: #fff;
+    color: #999;
+  }
+
+  .ant-picker-panel{
+    background-color: #f4f4f4 !important;
+  }
+  
+  .ant-picker-panel,
+  .ant-picker-datetime-panel .ant-picker-time-panel,
+  .ant-picker-time-panel-column:not(:first-child),
+  .ant-picker-panel .ant-picker-footer,
+  .ant-picker-header{
+    border-color: #e3e3e3;
+  }
+  
+  .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner{
+    background-color: #1890ff;
+  }
+
+  .ant-picker-time-panel-column > .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner{
+    color: #f4f4f4 !important;
+  }
+  
+  .ant-picker-cell:hover:not(.ant-picker-cell-in-view) .ant-picker-cell-inner, .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner,
+  .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner:hover{
+    background-color: #98cdff;
+  }
+  
+  .ant-picker-header,
+  .ant-picker-cell,
+  .ant-picker-content th,
+  .ant-picker-header button,
+  .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner{
     color: #333;
   }
 

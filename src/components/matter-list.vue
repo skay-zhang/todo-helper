@@ -45,7 +45,8 @@
       </div>
     </div>
   </div>
-  <a-drawer :width="350" placement="right" :closable="false" :visible="edit.show" @close="closeEdit">
+  <a-drawer :width="360" placement="right" :closable="false" :destroyOnClose="true" :visible="edit.show"
+    @close="closeEdit">
     <div class="text-big mb-10">编辑事项</div>
     <a-textarea ref="content" v-model:value="edit.form.content" class="mb-10"
       placeholder="请输入事项内容, 限1000字以内, 按下 Ctrl+Enter 即可提交..." :auto-size="{ minRows: 5, maxRows: 5 }"
@@ -58,7 +59,7 @@
         </a-select-option>
       </a-select>
     </div>
-    <div class="flex align-center">
+    <div class="flex align-center mb-10">
       <div class="text-small mr-10">标签</div>
       <a-select placeholder="主要标签" size="small" allowClear showSearch v-model:value="config.tag[0]"
         :not-found-content="null" :filter-option="false" :show-arrow="false" :disabled="loading" style="width: 95px"
@@ -76,10 +77,35 @@
         </a-select-option>
       </a-select>
     </div>
+    <a-divider orientation="left">时间点</a-divider>
+    <div class="flex align-center mb-10">
+      <div class="text-small mr-10">创建时间</div>
+      <a-date-picker v-model:value="edit.form.t1" :locale="locale" size="small" show-time placeholder="何时创建了事项" />
+    </div>
+    <div class="flex align-center mb-10">
+      <div class="text-small mr-10">待办时间</div>
+      <a-date-picker v-model:value="edit.form.t2" :locale="locale" size="small" show-time placeholder="状态变为待办的时间" />
+    </div>
+    <div class="flex align-center mb-10">
+      <div class="text-small mr-10">进行时间</div>
+      <a-date-picker v-model:value="edit.form.t3" :locale="locale" :disabled="edit.form.state < 2" size="small"
+        show-time placeholder="状态变为进行中的时间" />
+    </div>
+    <div class="flex align-center mb-10">
+      <div class="text-small mr-10">完成时间</div>
+      <a-date-picker v-model:value="edit.form.t4" :locale="locale" :disabled="edit.form.state != 3" size="small"
+        show-time placeholder="状态变为已完成的时间" />
+    </div>
+    <div class="flex align-center mb-10" v-if="edit.form.t5">
+      <div class="text-small mr-10">上次更新</div>
+      <div>{{ edit.form.t5 }}</div>
+    </div>
     <template #footer>
       <div class="float-right">
-        <a-button class="mr-5" size="small" :disabled="loading" @click="closeEdit">取消<span class="text-small ml-5">(ESC)</span></a-button>
-        <a-button type="primary" size="small" :loading="loading" @click="update">保存变更<span class="text-small ml-5">(Ctrl+Enter)</span></a-button>
+        <a-button class="mr-5" size="small" :disabled="loading" @click="closeEdit">取消<span
+            class="text-small ml-5">(ESC)</span></a-button>
+        <a-button type="primary" size="small" :loading="loading" @click="update">保存变更<span
+            class="text-small ml-5">(Ctrl+Enter)</span></a-button>
       </div>
     </template>
   </a-drawer>
@@ -87,9 +113,13 @@
     
 <script>
 import { ReloadOutlined, DeleteFilled, RollbackOutlined } from '@ant-design/icons-vue';
+import locale from 'ant-design-vue/es/date-picker/locale/zh_CN';
 import { Empty } from 'ant-design-vue';
 import util from '../plugin/util';
 import api from '../plugin/api';
+import { ref } from 'vue';
+import dayjs from 'dayjs';
+
 export default {
   name: "MatterList",
   components: { ReloadOutlined, DeleteFilled, RollbackOutlined },
@@ -108,6 +138,7 @@ export default {
     img: Empty.PRESENTED_IMAGE_SIMPLE,
     number: 0,
     list: [],
+    locale: locale,
     screen: {
       todo: {
         start: '',
@@ -159,7 +190,11 @@ export default {
         content: '',
         state: 0,
         tag: [],
-        date: 0
+        t1: '',
+        t2: '',
+        t3: '',
+        t4: '',
+        t5: ''
       }
     },
     config: {
@@ -207,8 +242,8 @@ export default {
         if (res.state) {
           for (let i in res.result) {
             let item = res.result[i];
-            res.result[i].datetime = util.formatTime(parseInt(item.date), 'yyyy-MM-dd hh:mm')
-            res.result[i].distance = util.distance(item.date)
+            res.result[i].datetime = util.formatTime(parseInt(item.t1), 'yyyy-MM-dd hh:mm')
+            res.result[i].distance = util.distance(item.t1)
             if (item.tag && item.tag.indexOf('[') == 0) {
               let tags = JSON.parse(item.tag);
               let list = [];
@@ -295,9 +330,16 @@ export default {
       })
     },
     openEdit(item) {
+      let form = JSON.parse(JSON.stringify(item));
+      if (form.t1) form.t1 = ref(dayjs((parseInt(form.t1))))
+      if (form.t2) form.t2 = ref(dayjs((parseInt(form.t2))))
+      if (form.t3) form.t3 = ref(dayjs((parseInt(form.t3))))
+      if (form.t4) form.t4 = ref(dayjs((parseInt(form.t4))))
+      if (form.t5) form.t5 = util.formatTime(parseInt(form.t5), 'yyyy-MM-dd hh:mm')
+      console.log(form)
       this.edit = {
         show: true,
-        form: JSON.parse(JSON.stringify(item))
+        form
       }
     },
     closeEdit() {
@@ -308,9 +350,15 @@ export default {
           content: '',
           state: 0,
           tag: [],
-          date: 0
+          t1: '',
+          t2: '',
+          t3: '',
+          t4: '',
+          t5: ''
         }
       }
+      this.config.tags = [];
+      this.config.tag = [];
     },
     search(level, value) {
       api.searchTags(value).then(res => {

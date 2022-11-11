@@ -3,7 +3,7 @@ const sql = {
   initTabel: {
     tags: `CREATE TABLE "main"."tags" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "name" TEXT NOT NULL, "default" INTEGER(1));`,
     group: `CREATE TABLE "main"."group" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "name" TEXT NOT NULL, "rule" TEXT(255));`,
-    matters: `CREATE TABLE "main"."matters" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "date" TEXT(15) NOT NULL, "content" TEXT NOT NULL, "state" INTEGER(1), "tag" TEXT, "del" INTEGER(1));`
+    matters: `CREATE TABLE "main"."matters" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "content" TEXT NOT NULL, "state" INTEGER(1), "tag" TEXT, "del" INTEGER, "t1" TEXT(15) NOT NULL, "t2" TEXT(15), "t3" TEXT(15), "t4" TEXT(15), "t5" TEXT(15));`
   },
   initIndex: {
     tags: `CREATE UNIQUE INDEX "main"."tid" ON "tags" ("id" COLLATE BINARY ASC);`,
@@ -47,13 +47,16 @@ const sql = {
   },
   matters: {
     add: (content, state, tag) => {
-      return `INSERT INTO "main"."matters" ("date","content","state","tag") VALUES ('${new Date().getTime()}','${content}','${state}','${tag}');`;
+      return `INSERT INTO "main"."matters" ("t1","content","state","tag") VALUES ('${new Date().getTime()}','${content}','${state}','${tag}');`;
     },
-    edit: (id, date, content, state, tag, del) => {
-      return `UPDATE "main"."matters" SET "date" = ${date},"content" = ${content},"state" = ${state},"tag" = ${tag},"del" = ${del} WHERE rowid = ${id};`
+    edit: (id, content, state, tag, t1, t2, t3, t5) => {
+      return `UPDATE "main"."matters" SET "content" = '${content}',"state" = '${state}',"tag" = '${tag}',"t1" = '${t1}',"t2" = '${t2}',"t3" = '${t3}',"t5" = '${t5}' WHERE rowid = ${id};`
     },
-    update: (id,key,value) => {
-      return `UPDATE "main"."matters" SET "${key}" = ${value} WHERE rowid = ${id};`
+    updateState: (id, step, state, date) => {
+      return `UPDATE "main"."matters" SET "state" = '${state}', "${step}" = '${date}', "t5" = '${date}' WHERE rowid = ${id};`
+    },
+    updateDel: (id, del, date) => {
+      return `UPDATE "main"."matters" SET "del" = '${del}', "t4" = '${date}', "t5" = '${date}' WHERE rowid = ${id};`
     },
     remove: id => {
       return `DELETE FROM "main"."matters" WHERE rowid = ${id};`
@@ -66,12 +69,12 @@ const sql = {
       let screen = sql.matters.buildScreen(start, end, state, tag, del);
       if (sort !== 'DESC' && sort !== 'ASC') sort = 'ASC'
 
-      return `SELECT "id","date","content","state","tag","del" FROM "matters" WHERE ${screen} ORDER BY "date" ${sort} LIMIT ${page == 0 ? 0 : (page - 1) * number},${number};`
+      return `SELECT "id","content","state","tag","del","t1","t2","t3","t4","t5" FROM "matters" WHERE ${screen} ORDER BY "date" ${sort} LIMIT ${page == 0 ? 0 : (page - 1) * number},${number};`
     },
     buildScreen: (start, end, state, tag, del) => {
       let screen = '';
-      if (start) screen = `"date" >= '${start}' AND `
-      if (end) screen += `"date" <= '${end}' AND `
+      if (start) screen = `"t1" >= '${start}' AND `
+      if (end) screen += `"t1" <= '${end}' AND `
       if (state > 0) screen += `"state" = ${state} AND `
       if (tag) screen += `"tag" LIKE '%${tag}%' AND `
       if (del === 1 || del === '1') screen += '"del" = 1'

@@ -128,20 +128,30 @@ function controller(dev, db, safe) {
     let body = req.body;
     if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
     if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
-    db.updateMatter(body.id, 'state', body.state, (state, data) => {
+    db.updateMatterState(body.id, 't'+body.state, body.state, (state, data) => {
       ret(res, state, data)
     })
   });
   // 编辑事项
-  serve.post('/api/item', (_req, res) => {
-    ret(res, true, 'ok')
+  serve.post('/api/item', (req, res) => {
+    let body = req.body;
+    if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
+    if (body.t1 == undefined || body.t1 == '') return ret(res, false, '创建时间不能为空')
+    if (body.content == undefined || body.content == '') return ret(res, false, '内容不能为空')
+    if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
+    if (body.tag == undefined) body.tag = ''
+    if (body.t2 == undefined) body.t2 = ''
+    if (body.t3 == undefined) body.t3 = ''
+    db.editMatter(body.id, body.date, body.content, body.state, body.tag, body.t1, body.t2, body.t3, (state, data) => {
+      ret(res, state, data)
+    })
   });
   // 移除事项
   serve.delete('/api/item', (req, res) => {
     let body = req.body;
     if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
     if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
-    db.updateMatter(body.id, 'del', body.state, (state, data) => {
+    db.updateMatterDel(body.id, body.state, (state, data) => {
       ret(res, state, data)
     })
   });
