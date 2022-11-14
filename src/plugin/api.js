@@ -97,6 +97,12 @@ export default {
             data
         })
     },
+    cleanMatter: () => {
+        return request({
+            url: '/clean',
+            method: 'DELETE'
+        })
+    },
     searchTags: keyword => {
         let data = new URLSearchParams();
         data.append('keyword', keyword);

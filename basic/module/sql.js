@@ -63,8 +63,8 @@ const sql = {
     updateDel: (id, del, date) => {
       return `UPDATE "main"."matters" SET "del" = '${del}', "t5" = '${date}' WHERE rowid = ${id};`
     },
-    remove: id => {
-      return `DELETE FROM "main"."matters" WHERE rowid = ${id};`
+    remove: () => {
+      return `DELETE FROM "main"."matters" WHERE del = '1';`
     },
     getNumber: (start, end, state, tag, del) => {
       let screen = sql.matters.buildScreen(start, end, state, tag, del);

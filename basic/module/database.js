@@ -88,6 +88,15 @@ const database = {
     });
     db.close();
   },
+  removeMatter(callback){
+    db = new sqlite.Database(path);
+    db.serialize(() => {
+      db.all(sql.matters.remove(), (err, res) => {
+        callback(err ? false : true, res)
+      })
+    });
+    db.close();
+  },
   updateMatterState(id, step, state, callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {

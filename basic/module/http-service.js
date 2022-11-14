@@ -157,6 +157,12 @@ function controller(dev, db, safe) {
       ret(res, state, data)
     })
   });
+  // 清除回收站
+  serve.delete('/api/clean', (_req, res) => {
+    db.removeMatter((state, data) => {
+      ret(res, state, data)
+    })
+  });
   // 搜索标签
   serve.post('/api/tag/search', (req, res) => {
     let body = req.body;
