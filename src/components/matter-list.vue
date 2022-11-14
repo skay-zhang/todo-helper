@@ -13,12 +13,14 @@
       </a-button>
       <div>共 {{ number }} 条{{ name[type] }}事项</div>
     </div>
-    <div class="list">
-      <div class="card pa-10 mb-10" v-for="(item,index) in list" :key="'todo_' + item.id" @click="openEdit(item)">
+    <div class="list" :class="{ 'show-toolbar': select > 0 }">
+      <div class="card pa-10 mb-10" v-for="(item, index) in list" :key="'todo_' + item.id" @click="openEdit(item)">
         <div>{{ item.content }}</div>
         <div class="flex align-center justify-between">
           <div class="flex align-center">
-            <a-checkbox class="mr-5 select" :class="{checked:item.select}" @click.stop="" @change="selectItem(index)"></a-checkbox>
+            <a-checkbox class="mr-5 select" :class="{ checked: item.select }" v-if="mode !== 'remove'" @click.stop=""
+              @change="selectItem(index)">
+            </a-checkbox>
             <div class="text-small text-gray">{{ item.distance }}</div>
           </div>
           <div class="flex align-center" v-if="item.tag && item.tag.length > 0">
@@ -44,6 +46,18 @@
           </a-button>
         </div>
       </div>
+    </div>
+    <div class="toolbar flex align-center justify-between" :class="{ show: select > 0 }" v-if="mode !== 'remove'">
+      <div class="flex align-center">
+        <a-button class="mr-10" size="small" type="primary" v-if="mode !== 'complete'" @click.stop="changeState(3)">
+          已完成
+        </a-button>
+        <a-button class="mr-10" size="small" v-if="mode === 'todo'" @click.stop="changeState(2)">进行中
+        </a-button>
+      </div>
+      <a-button size="small" type="text" danger @click.stop="remove(true)">
+        <delete-filled /> 删除
+      </a-button>
     </div>
   </div>
   <matter-edit ref="edit" @update="getMattersNumber()" />
@@ -105,6 +119,7 @@ export default {
     number: 0,
     img: Empty.PRESENTED_IMAGE_SIMPLE,
     search: null,
+    select: 0,
     screen: {
       show: false,
       todo: {
@@ -163,6 +178,7 @@ export default {
       if (this.mode != mode) this.search = null;
       this.mode = mode;
       this.number = 0;
+      this.select = 0;
       let screen = this.buildScreen(mode);
       api.getMattersNumber(screen).then(res => {
         if (res.state) {
@@ -191,7 +207,7 @@ export default {
         if (res.state) {
           for (let i in res.result) {
             let item = res.result[i];
-            if (item.t3) item.date = util.formatTime(parseInt(item.t3), 'yyyy-MM-dd hh:mm')
+            if (item.t4) item.date = util.formatTime(parseInt(item.t4), 'yyyy-MM-dd hh:mm')
             item.datetime = util.formatTime(parseInt(item.t1), 'yyyy-MM-dd hh:mm')
             item.distance = util.distance(item.t1)
             if (item.tag && item.tag.indexOf('[') == 0) {
@@ -285,72 +301,144 @@ export default {
         })
       })
     },
-    changeTag(e){
-      if(this.tag[e]) this.screen[this.mode].tag = this.tag[e].id
+    changeTag(e) {
+      if (this.tag[e]) this.screen[this.mode].tag = this.tag[e].id
     },
-    selectItem(index){
+    selectItem(index) {
       let now = this.list[index].select;
-      if(now == undefined || now == null) now = false;
+      if (now == undefined || now == null) now = false;
+      this.select = now ? this.select - 1 : this.select + 1;
       this.list[index].select = !now;
     },
     changeState(info, next) {
-      let title = '';
-      if (next === 2) title = '此事项确认“正在进行”吗?'
-      else if (next === 3) title = '此事项确认“已完成”吗?'
-
-      this.$confirm({
-        class: 'change-tips',
-        content: `事项内容: ${info.content}`,
-        cancelText: '取消',
-        okText: '确认',
-        title,
-        onOk: () => {
-          api.updateMatterState(info.id, next).then(res => {
-            if (res.state) {
-              this.$message.success({
-                content: '状态修改成功'
-              })
-              this.getMattersNumber()
-            } else {
-              this.$message.error({
-                content: res.result ? res.result : '状态修改失败'
+      if (next === undefined) {
+        let ids = [];
+        for (let i in this.list) {
+          if (this.list[i].select) ids.push(this.list[i].id);
+        }
+        let title = '';
+        if (info === 2) title = '这些事项确认“正在进行”吗?'
+        else if (info === 3) title = '这些事项确认“已完成”吗?'
+        this.$confirm({
+          class: 'change-tips',
+          content: `已选事项数量: ${ids.length}`,
+          cancelText: '取消',
+          okText: '确认',
+          title,
+          onOk: () => {
+            this.$emit('loading', { state: true });
+            let check = 0;
+            for (let i in ids) {
+              api.updateMatterState(ids[i], info).then(() => {
+                check++
+              }).catch(() => {
+                check++
               })
             }
-          }).catch(err => {
-            this.$message.error({
-              content: '状态修改失败,' + err
+            let time = setInterval(() => {
+              if (check == ids.length) {
+                this.$message.success({
+                  content: '状态修改完成'
+                })
+                this.getMattersNumber()
+                clearInterval(time);
+              }
+            }, 500);
+          }
+        })
+      } else {
+        let title = '';
+        if (next === 2) title = '此事项确认“正在进行”吗?'
+        else if (next === 3) title = '此事项确认“已完成”吗?'
+        this.$confirm({
+          class: 'change-tips',
+          content: `事项内容: ${info.content}`,
+          cancelText: '取消',
+          okText: '确认',
+          title,
+          onOk: () => {
+            api.updateMatterState(info.id, next).then(res => {
+              if (res.state) {
+                this.$message.success({
+                  content: '状态修改成功'
+                })
+                this.getMattersNumber()
+              } else {
+                this.$message.error({
+                  content: res.result ? res.result : '状态修改失败'
+                })
+              }
+            }).catch(err => {
+              this.$message.error({
+                content: '状态修改失败,' + err
+              })
             })
-          })
-        }
-      })
+          }
+        })
+      }
     },
     remove(info, del) {
-      let tag = del ? '删除' : '还原';
-      this.$confirm({
-        class: 'change-tips',
-        content: `事项内容: ${info.content}`,
-        cancelText: '取消',
-        okText: '确认',
-        title: `确认要${tag}此事项吗?`,
-        onOk: () => {
-          api.removeMatter(info.id, del ? 1 : 0).then(res => {
-            if (res.state) {
-              this.$message.success({
-                content: tag + '成功'
-              })
-              this.getMattersNumber()
-            } else {
-              this.$message.error({
-                content: res.result ? res.result : tag + '失败'
+      if (del === undefined) {
+        let ids = [];
+        for (let i in this.list) {
+          if (this.list[i].select) ids.push(this.list[i].id);
+        }
+        let tag = info ? '删除' : '还原';
+        this.$confirm({
+          class: 'change-tips',
+          content: `已选事项数量: ${ids.length}`,
+          cancelText: '取消',
+          okText: '确认',
+          title: `确认要${tag}这些事项吗?`,
+          onOk: () => {
+            this.$emit('loading', { state: true });
+            let check = 0;
+            for (let i in ids) {
+              api.removeMatter(ids[i], info ? 1 : 0).then(() => {
+                check++
+              }).catch(() => {
+                check++
               })
             }
-          }).catch(err => {
-            this.$message.error({
-              content: tag + '失败,' + err
+            let time = setInterval(() => {
+              if (check == ids.length) {
+                this.$message.success({
+                  content: tag + '完成'
+                })
+                this.getMattersNumber()
+                clearInterval(time);
+              }
+            }, 500);
+          }
+        })
+      } else {
+        let tag = del ? '删除' : '还原';
+        this.$confirm({
+          class: 'change-tips',
+          content: `事项内容: ${info.content}`,
+          cancelText: '取消',
+          okText: '确认',
+          title: `确认要${tag}此事项吗?`,
+          onOk: () => {
+            api.removeMatter(info.id, del ? 1 : 0).then(res => {
+              if (res.state) {
+                this.$message.success({
+                  content: tag + '成功'
+                })
+                this.getMattersNumber()
+              } else {
+                this.$message.error({
+                  content: res.result ? res.result : tag + '失败'
+                })
+              }
+            }).catch(err => {
+              this.$message.error({
+                content: tag + '失败,' + err
+              })
             })
-          })
-        }
-      })
+          }
+        })
+      }
     },
     openEdit(item) {
       this.$refs.edit.open(item)
@@ -416,7 +504,7 @@ export default {
   opacity: 1;
 }
 
-.select{
+.select {
   margin-top: -2px;
   display: none;
 }
@@ -425,8 +513,30 @@ export default {
   display: flex;
 }
 
-.select.checked{
+.select.checked {
   display: flex !important;
+}
+
+.show-toolbar {
+  padding-bottom: 45px;
+}
+
+.toolbar {
+  box-shadow: 0 -5px 10px 0 rgba(0, 0, 0, 0.5);
+  transition: all ease-out 0.3s;
+  background-color: #202020;
+  border-radius: 8px 0 0 0;
+  position: fixed;
+  padding: 10px;
+  bottom: -40px;
+  width: 346px;
+  opacity: 0;
+  right: 0;
+}
+
+.toolbar.show {
+  opacity: 1;
+  bottom: 0;
 }
 
 @media (prefers-color-scheme: light) {
@@ -450,6 +560,11 @@ export default {
   }
 
   .card:hover .tools {
+    background-color: #fff;
+  }
+
+  .toolbar {
+    box-shadow: 0 -5px 10px 0 rgba(0, 0, 0, 0.1);
     background-color: #fff;
   }
 }

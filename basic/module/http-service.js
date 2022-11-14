@@ -144,7 +144,7 @@ function controller(dev, db, safe) {
     if (body.t2 == undefined) body.t2 = ''
     if (body.t3 == undefined) body.t3 = ''
     if (body.t4 == undefined) body.t4 = ''
-    db.editMatter(body.id, body.content, body.state, body.tag, body.t1, body.t2, body.t3, body.t4, (state, data) => {
+    db.editMatter(body.id, encrypt(safe, body.content), body.state, body.tag, body.t1, body.t2, body.t3, body.t4, (state, data) => {
       ret(res, state, data)
     })
   });
