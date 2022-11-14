@@ -126,6 +126,7 @@ export default {
       if (e.ctrlKey && e.keyCode == 13) this.submit()
     },
     search(level, value) {
+      if(value === '') return false;
       api.searchTags(value).then(res => {
         if (res.state) {
           let exist = false;

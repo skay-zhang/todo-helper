@@ -14,10 +14,13 @@
       <div>共 {{ number }} 条{{ name[type] }}事项</div>
     </div>
     <div class="list">
-      <div class="card pa-10 mb-10" v-for="item in list" :key="'todo_' + item.id" @click="openEdit(item)">
+      <div class="card pa-10 mb-10" v-for="(item,index) in list" :key="'todo_' + item.id" @click="openEdit(item)">
         <div>{{ item.content }}</div>
         <div class="flex align-center justify-between">
-          <div class="text-small text-gray">{{ item.distance }}</div>
+          <div class="flex align-center">
+            <a-checkbox class="mr-5 select" :class="{checked:item.select}" @click.stop="" @change="selectItem(index)"></a-checkbox>
+            <div class="text-small text-gray">{{ item.distance }}</div>
+          </div>
           <div class="flex align-center" v-if="item.tag && item.tag.length > 0">
             <div class="todo-tag" v-for="tag in item.tag" :key="'todo_' + item.id + '_' + tag.id">
               {{ tag.name }}
@@ -56,7 +59,12 @@
       </div>
       <div class="flex align-center mb-10">
         <div class="text-small mr-10" style="width: 48px;">标签</div>
-        <a-select v-model:value="screen[mode].tag" placeholder="请输入选择标签" style="width: 135px"></a-select>
+        <a-select v-model:value="search" allowClear showSearch placeholder="请输入选择标签" :not-found-content="null"
+          :filter-option="false" :show-arrow="false" @search="searchTag" @change="changeTag" style="width: 135px">
+          <a-select-option v-for="(item, index) in tag" :key="item.id" :value="index">
+            {{ item.name }}
+          </a-select-option>
+        </a-select>
       </div>
       <div class="flex align-center mb-10">
         <div class="text-small mr-10" style="width: 75px;">内容</div>
@@ -76,7 +84,6 @@ import { Empty } from 'ant-design-vue';
 import MatterEdit from './matter-edit.vue';
 import util from '../plugin/util';
 import api from '../plugin/api';
-import dayjs from 'dayjs';
 
 export default {
   name: "MatterList",
@@ -97,12 +104,13 @@ export default {
     list: [],
     number: 0,
     img: Empty.PRESENTED_IMAGE_SIMPLE,
+    search: null,
     screen: {
       show: false,
       todo: {
         start: '',
         end: '',
-        tag: '',
+        tag: null,
         content: '',
         del: 0,
         state: 1,
@@ -112,7 +120,7 @@ export default {
       progress: {
         start: '',
         end: '',
-        tag: '',
+        tag: null,
         content: '',
         del: 0,
         state: 2,
@@ -122,7 +130,7 @@ export default {
       complete: {
         start: '',
         end: '',
-        tag: '',
+        tag: null,
         content: '',
         del: 0,
         state: 3,
@@ -132,7 +140,7 @@ export default {
       remove: {
         start: '',
         end: '',
-        tag: '',
+        tag: null,
         content: '',
         del: 1,
         state: 0,
@@ -145,12 +153,14 @@ export default {
       progress: '进行中',
       complete: '已完成',
       remove: '已删除',
-    }
+    },
+    tag: []
   }),
   methods: {
     getMattersNumber(mode) {
       this.$emit('loading', { state: true });
       if (mode == undefined) mode = this.type;
+      if (this.mode != mode) this.search = null;
       this.mode = mode;
       this.number = 0;
       let screen = this.buildScreen(mode);
@@ -222,7 +232,7 @@ export default {
         todo: {
           start: '',
           end: '',
-          tag: '',
+          tag: null,
           content: '',
           del: 0,
           state: 1,
@@ -232,7 +242,7 @@ export default {
         progress: {
           start: '',
           end: '',
-          tag: '',
+          tag: null,
           content: '',
           del: 0,
           state: 2,
@@ -242,7 +252,7 @@ export default {
         complete: {
           start: '',
           end: '',
-          tag: '',
+          tag: null,
           content: '',
           del: 0,
           state: 3,
@@ -252,7 +262,7 @@ export default {
         remove: {
           start: '',
           end: '',
-          tag: '',
+          tag: null,
           content: '',
           del: 1,
           state: 0,
@@ -263,6 +273,25 @@ export default {
       this.screen[this.mode] = JSON.parse(JSON.stringify(cache[this.mode]));
       this.getMattersNumber();
       this.screen.show = false;
+    },
+    searchTag(e) {
+      if (e === '') return false;
+      api.searchTags(e).then(res => {
+        this.tag = res.state ? res.result : []
+      }).catch(err => {
+        this.tag = []
+        this.$message.error({
+          content: '查询失败,' + err
+        })
+      })
+    },
+    changeTag(e){
+      if(this.tag[e]) this.screen[this.mode].tag = this.tag[e].id
+    },
+    selectItem(index){
+      let now = this.list[index].select;
+      if(now == undefined || now == null) now = false;
+      this.list[index].select = !now;
     },
     changeState(info, next) {
       let title = '';
@@ -330,7 +359,6 @@ export default {
       let screen = JSON.parse(JSON.stringify(this.screen[mode]));
       if (screen.start) screen.start = this.screen[mode].start.startOf('day').unix();
       if (screen.end) screen.end = this.screen[mode].end.endOf('day').unix();
-      console.log(screen)
       return screen;
     }
   }
@@ -386,6 +414,19 @@ export default {
 .card:hover .tools {
   background-color: #2a2a2a;
   opacity: 1;
+}
+
+.select{
+  margin-top: -2px;
+  display: none;
+}
+
+.card:hover .select {
+  display: flex;
+}
+
+.select.checked{
+  display: flex !important;
 }
 
 @media (prefers-color-scheme: light) {

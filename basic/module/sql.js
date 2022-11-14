@@ -5,6 +5,11 @@ const sql = {
     group: `CREATE TABLE "main"."group" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "name" TEXT NOT NULL, "rule" TEXT(255));`,
     matters: `CREATE TABLE "main"."matters" ( "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "content" TEXT NOT NULL, "state" INTEGER(1), "tag" TEXT, "del" INTEGER, "t1" TEXT(15) NOT NULL, "t2" TEXT(15), "t3" TEXT(15), "t4" TEXT(15), "t5" TEXT(15));`
   },
+  initAutoId: {
+    tags: `INSERT INTO "main"."sqlite_sequence" (name, seq) VALUES ('tags', '10000');`,
+    group: `INSERT INTO "main"."sqlite_sequence" (name, seq) VALUES ('group', '10000');`,
+    matters: `INSERT INTO "main"."sqlite_sequence" (name, seq) VALUES ('matters', '10000');`,
+  },
   initIndex: {
     tags: `CREATE UNIQUE INDEX "main"."tid" ON "tags" ("id" COLLATE BINARY ASC);`,
     group: `CREATE UNIQUE INDEX "main"."gid" ON "group" ("id" COLLATE BINARY ASC);`,

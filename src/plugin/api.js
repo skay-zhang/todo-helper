@@ -38,7 +38,7 @@ export default {
         data.append('start', form.start);
         data.append('end', form.end);
         data.append('state', form.state);
-        data.append('tag', form.tag);
+        if (form.tag && form.tag != 'null') data.append('tag', form.tag);
         data.append('del', form.del);
         return request({
             url: '/number',
@@ -51,7 +51,7 @@ export default {
         data.append('start', form.start);
         data.append('end', form.end);
         data.append('state', form.state);
-        data.append('tag', form.tag);
+        if (form.tag && form.tag != 'null') data.append('tag', form.tag);
         data.append('del', form.del);
         data.append('number', form.number);
         data.append('page', form.page);

@@ -418,6 +418,11 @@ body {
   border: none;
 }
 
+.ant-checkbox-inner{
+  border: 1px solid #2d2d2d;
+  background-color: #000;
+}
+
 ::-webkit-scrollbar {
   height: 5px;
   width: 5px;
@@ -679,6 +684,11 @@ body {
   .ant-input{
     background-color: #fff;
     color: #333;
+  }
+
+  .ant-checkbox-inner{
+    border: 1px solid #d9d9d9;
+    background-color: #ebebeb;
   }
   
   ::-webkit-scrollbar-thumb {

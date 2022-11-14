@@ -26,6 +26,8 @@ const database = {
             console.log('[database] Init ' + key + ' table')
             // 初始化表
             db.run(sql.initTabel[key], () => {
+              // 初始化自增主键
+              db.run(sql.initAutoId[key])
               // 初始化索引
               db.run(sql.initIndex[key])
             })
