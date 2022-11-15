@@ -63,7 +63,6 @@ async function createManagementWindow() {
 async function createFastAddWindow() {
   fwin = new BrowserWindow({
     title: '快速创建',
-    icon: join(process.env.PUBLIC, 'favicon.ico'),
     width: 500,
     height: 234,
     resizable: false,
