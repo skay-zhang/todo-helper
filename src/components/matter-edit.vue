@@ -119,7 +119,6 @@ export default {
       if (form.tag && form.tag.length > 0) {
         this.config.tag[0] = form.tag[0].name;
         this.config.tags[0] = [form.tag[0]];
-        console.log(form.tag.length)
         if (form.tag.length === 2) {
           this.config.tag[1] = form.tag[1].name;
           this.config.tags[1] = [form.tag[1]];

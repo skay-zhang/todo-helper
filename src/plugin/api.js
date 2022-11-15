@@ -22,6 +22,18 @@ export default {
             method: 'GET'
         })
     },
+    getNewVersion: () => {
+        return request({
+            url: 'https://raw.githubusercontent.com/skay-zhang/todo-helper/main/VERSION',
+            method: 'GET'
+        })
+    },
+    updateNewVersion: () => {
+        return request({
+            url: '/update',
+            method: 'GET'
+        })
+    },
     initAdd: () => {
         return request({
             url: '/add',
@@ -133,7 +145,7 @@ export default {
             method: 'GET'
         })
     },
-    getStatistics: ()=>{
+    getStatistics: () => {
         return request({
             url: '/statistics',
             method: 'GET'

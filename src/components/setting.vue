@@ -7,7 +7,7 @@
         <div class="text-small text-gray mb-5">cc.stacks.todo.helper</div>
         <div class="flex align-center">
           <div class="text-small mr-10">v{{ version }}</div>
-          <a-button type="text" size="small">检查更新</a-button>
+          <a-button type="text" size="small" @click="getVersion()">检查更新</a-button>
         </div>
       </div>
       <div class="github" @click="openGithub">
@@ -37,7 +37,7 @@
           <div>{{ statistics.del }} 项</div>
         </div>
         <div class="flex align-center justify-between pt-10">
-          <div class="label">标签数量</div>
+          <div class="label">标签</div>
           <div>{{ statistics.tags }} 个</div>
         </div>
       </template>
@@ -75,6 +75,16 @@ export default {
     }
   }),
   methods: {
+    getVersion() {
+      api.getNewVersion().then(res => {
+        if (res) {
+          let git = parseInt(res.replaceAll('.', ''));
+          let now = parseInt(this.version.replaceAll('.', ''));
+          if (git > now) api.updateNewVersion();
+          else this.$message.success({content: '当前已是最新版本'})
+        }
+      })
+    },
     openGithub() {
       window.open('https://github.com/skay-zhang/todo-helper', 'github', 'width=1024,height=800,resizable=0')
     },
@@ -159,9 +169,9 @@ export default {
     getStatistics() {
       this.loading = true;
       api.getStatistics().then(res => {
-        setTimeout(()=>{
+        setTimeout(() => {
           this.loading = false;
-        },500)
+        }, 500)
         if (res.state) {
           this.statistics = {
             del: res.result.del,
@@ -175,7 +185,6 @@ export default {
           for (let i in res.result.state) {
             this.statistics.state[res.result.state[i].state] = res.result.state[i].number
           }
-          console.log(this.statistics)
         } else {
           this.$message.error({
             content: res.result ? res.result : '刷新失败'

@@ -83,8 +83,7 @@ export default {
             content: res.result ? res.result : '获取标签列表失败'
           })
         }
-      }).catch(err => {
-        console.log(err)
+      }).catch(() => {
         this.switchLoading(false)
         this.$message.error({
           content: '获取标签列表失败,' + err

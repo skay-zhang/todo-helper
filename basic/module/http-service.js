@@ -1,3 +1,4 @@
+import { shell, dialog } from 'electron'
 import pkg from '../../package.json'
 import express from 'express'
 import bodyParser from 'body-parser'
@@ -213,6 +214,19 @@ function controller(dev, db, safe) {
       if (state) excel.read(start, db, safe, data.matters, data.tags);
     })
     ret(res, true)
+  });
+  // 更新应用版本
+  serve.get('/api/update', (_req, res) => {
+    ret(res, true)
+    dialog.showMessageBox({
+      type: 'info',
+      defaultId: 0,
+      message: '新版本可用',
+      detail: '检测到有新的版本可供使用',
+      buttons: ['前往下载','下次再说']
+    }).then(result => {
+      if(result.response == 0) shell.openExternal('https://github.com/skay-zhang/todo-helper/releases/latest')
+    })
   });
   serve.use(express.static(path.join(__dirname, dev ? '../client' : '../../public/client')))
   return serve;

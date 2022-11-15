@@ -22,10 +22,19 @@ export default {
     close() {
       window.electron.closeWindow(this.mode);
     },
-    getVersion(){
-      api.getVersion().then(res=>{
-        if(res.state == true) localStorage.setItem('version',res.result)
-        localStorage.setItem('version',res.state == true ? res.result:'0.0.0')
+    getVersion() {
+      api.getVersion().then(res => {
+        if (res.state == true) {
+          localStorage.setItem('version', res.result);
+          api.getNewVersion().then(sub => {
+            if (sub) {
+              let git = parseInt(sub.replaceAll('.', ''));
+              let now = parseInt(res.result.replaceAll('.', ''));
+              if(git > now) api.updateNewVersion();
+            }
+          })
+        }
+        localStorage.setItem('version', res.state == true ? res.result : '0.0.0')
       })
     }
   },
