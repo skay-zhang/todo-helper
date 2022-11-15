@@ -1,6 +1,6 @@
 # 待办助手
 
-[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache_2.0-brightgreen.svg)](LICENSE)
 ![Version](https://img.shields.io/badge/dev-1.0.0-red.svg)
 [![Node](https://img.shields.io/badge/node-%E2%89%A516.0.0-blue.svg)](https://nodejs.org/)
 [![CodeQL](https://github.com/skay-zhang/todo-helper/workflows/CodeQL/badge.svg)](https://github.com/skay-zhang/todo-helper/security/code-scanning)
