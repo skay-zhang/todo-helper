@@ -42,7 +42,6 @@ const database = {
     if (Object.keys(obj).length == num) callback(true, obj);
   },
   getInitData(callback) {
-    let cache = {};
     db = new sqlite.Database(path);
     db.serialize(() => {
       // 获取最近三条事项

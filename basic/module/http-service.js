@@ -58,12 +58,6 @@ function controller(dev, db, safe) {
   let serve = express()
   // 全局拦截
   serve.all("*", (req, res, next) => {
-    // 开发时开启跨域
-    if (dev) {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Headers', 'content-type');
-      res.header('Access-Control-Allow-Methods', 'POST,GET,DELETE,OPTIONS');
-    }
     if (req.method.toLowerCase() == 'options') res.send(200);
     else next();
   })

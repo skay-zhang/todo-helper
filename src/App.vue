@@ -24,7 +24,7 @@ export default {
     },
     getVersion() {
       api.getVersion().then(res => {
-        if (res.state == true) {
+        if (res.state) {
           localStorage.setItem('version', res.result);
           api.getNewVersion().then(sub => {
             if (sub) {
@@ -34,7 +34,7 @@ export default {
             }
           })
         }
-        localStorage.setItem('version', res.state == true ? res.result : '0.0.0')
+        localStorage.setItem('version', res.state ? res.result : '0.0.0')
       })
     }
   },

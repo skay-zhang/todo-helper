@@ -1,7 +1,7 @@
 <template>
   <div class="setting pa-10">
     <div class="card flex align-center mb-10">
-      <img class="logo" :src="'./logo/logo.png'" />
+      <img alt="Logo" class="logo" :src="'./logo/logo.png'" />
       <div class="full-width">
         <div class="title">待办助手</div>
         <div class="text-small text-gray mb-5">cc.stacks.todo.helper</div>
@@ -244,7 +244,5 @@ export default {
 .api-name {
   width: 120px;
 }
-
-@media (prefers-color-scheme: light) {}
 </style>
     
