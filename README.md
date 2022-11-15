@@ -85,4 +85,4 @@ you need to add `if(!statuses.message) return;` to **http-errors** after line **
 
 ## 🎟 许可证
 
-[MIT](LICENSE)
+[Apache 2.0](LICENSE)
