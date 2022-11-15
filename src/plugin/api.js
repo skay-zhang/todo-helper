@@ -133,6 +133,12 @@ export default {
             method: 'GET'
         })
     },
+    getStatistics: ()=>{
+        return request({
+            url: '/statistics',
+            method: 'GET'
+        })
+    },
     exportData: () => {
         return request({
             url: '/export',

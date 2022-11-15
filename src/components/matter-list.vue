@@ -182,6 +182,11 @@ export default {
       let screen = this.buildScreen(mode);
       api.getMattersNumber(screen).then(res => {
         if (res.state) {
+          if (res.result == undefined) {
+            this.number = 0;
+            this.$emit('loading', { state: false });
+            return false;
+          }
           this.number = res.result;
           this.list = [];
           setTimeout(() => this.getMattersList(mode), 300)

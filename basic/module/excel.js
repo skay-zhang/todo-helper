@@ -73,12 +73,12 @@ const work = {
             })
         }).catch(err => {
             dialog.showMessageBox({
-                message: '导出位置选取出错',
-                detail: err
+                message: '导出位置选取出错'
             })
+            console.log(err)
         })
     },
-    async read(t1, safe, matters, tags) {
+    async read(t1, db, safe, matters, tags) {
         let t2 = new Date().getTime();
         dialog.showOpenDialog({
             title: '数据导入',
@@ -95,26 +95,118 @@ const work = {
             // 打开工作簿
             const workbook = new ExcelJS.Workbook();
             await workbook.xlsx.readFile(result.filePaths[0]);
-            // 读取事项表
-            const mattersSheet = workbook.getWorksheet('Matters');
-            mattersSheet.eachRow((row, rowNumber) => {
-              console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
-            });
+
             // 读取标签表
+            let tagList = []
+            let tagsHeader = {}
             const tagsSheet = workbook.getWorksheet('Tags');
-            tagsSheet.eachRow((row, rowNumber) => {
-              console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
+            tagsSheet.eachRow((row, num) => {
+                if (num === 1) {
+                    for (let i in row.values) {
+                        let item = row.values[i];
+                        if (item == null || item == 'null') continue;
+                        tagsHeader[i] = item;
+                    }
+                } else {
+                    let item = {};
+                    for (let key in tagsHeader) {
+                        item[tagsHeader[key]] = row.values[key];
+                    }
+                    tagList.push(item);
+                }
             });
-            dialog.showMessageBox({
-                message: '导入完成',
-                detail: '耗时: ' + (new Date().getTime() - t3 + t2 - t1) + 'ms'
+            let addTags = []
+            let updateTags = {}
+            for (let a in tagList) {
+                let exist = false;
+                for (let b in tags) {
+                    if (tagList[a].name === tags[b].name) {
+                        exist = true;
+                        if (tagList[a].id !== tags[b].id) updateTags[tagList[a].id] = tags[b].id;
+                        break;
+                    }
+                }
+                if (!exist) addTags.push(tagList[a])
+            }
+
+            // 读取事项表
+            let matterList = []
+            let mattersHeader = {}
+            const mattersSheet = workbook.getWorksheet('Matters');
+            mattersSheet.eachRow((row, num) => {
+                if (num === 1) {
+                    for (let i in row.values) {
+                        let item = row.values[i];
+                        if (item == null || item == 'null') continue;
+                        mattersHeader[i] = item;
+                    }
+                } else {
+                    let item = {};
+                    for (let key in mattersHeader) {
+                        item[mattersHeader[key]] = row.values[key];
+                    }
+                    matterList.push(item);
+                }
+            });
+            if (matterList.length > 0) {
+                for (let i in matters) {
+                    let item = matters[i];
+                    item.content = decrypt(safe, item.content);
+                }
+            }
+            let addMatters = []
+            let removeMatters = []
+            for (let a in matterList) {
+                let exist = false;
+                let tag = matterList[a].tag;
+                if (tag) {
+                    tag = JSON.parse(tag);
+                    for (let i in tag) {
+                        if (updateTags[tag[i]] != undefined) tag[i] = updateTags[tag[i]];
+                    }
+                    tag = JSON.stringify(tag);
+                    matterList[a].tag = tag;
+                }
+                for (let b in matters) {
+                    if (matterList[a].content === matters[b].content && matterList[a].t1 === matters[b].t1) {
+                        exist = true;
+                        if (matterList[a].id !== matters[b].id) {
+                            matterList[a].content = encrypt(safe, matterList[a].content)
+                            addMatters.push(matterList[a])
+                            removeMatters.push(matters[b].id)
+                        }
+                        break;
+                    }
+                }
+                if (!exist) {
+                    matterList[a].content = encrypt(safe, matterList[a].content)
+                    addMatters.push(matterList[a])
+                }
+            }
+
+            db.importData(addMatters, removeMatters, addTags, updateTags, () => {
+                dialog.showMessageBox({
+                    message: '导入完成',
+                    detail: '耗时: ' + (new Date().getTime() - t3 + t2 - t1) + 'ms'
+                })
             })
         }).catch(err => {
             dialog.showMessageBox({
-                message: '导入文件选取出错',
-                detail: err
+                message: '导入文件选取出错'
             })
+            console.log(err)
         })
+    }
+}
+
+// 字符串加密
+function encrypt(safe, text) {
+    try {
+        if (safe === undefined || safe === false) return text
+        return safe.encryptString(text).toString('base64')
+    } catch (err) {
+        console.log('[http] Encrypt error: ' + err)
+        return text
     }
 }
 

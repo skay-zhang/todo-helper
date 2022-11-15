@@ -88,7 +88,7 @@ const database = {
     });
     db.close();
   },
-  removeMatter(callback){
+  removeMatter(callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.matters.remove(), (err, res) => {
@@ -145,7 +145,36 @@ const database = {
     });
     db.close();
   },
-  exportData(callback){
+  getStatistics(callback){
+    db = new sqlite.Database(path);
+    db.serialize(() => {
+      db.all(sql.matters.statistics(false), (e1, state) => {
+        if (e1) {
+          db.close();
+          throw e1
+        }
+        db.get(sql.matters.statistics(true), (e2, dels) => {
+          if (e2) {
+            db.close();
+            throw e2
+          }
+          db.get(sql.tags.getNumber, (e3, tags) => {
+            if (e3) {
+              db.close();
+              throw e3
+            }
+            callback(e3 ? false : true, {
+              del: dels.number,
+              tags: tags.number,
+              state: state
+            })
+            db.close();
+          })
+        })
+      })
+    });
+  },
+  exportData(callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {
       db.all(sql.tags.getList, (err, res) => {
@@ -166,6 +195,25 @@ const database = {
         })
       })
     });
+  },
+  importData(addMatters, removeMatters, addTags, updateTags, callback) {
+    db = new sqlite.Database(path);
+    db.parallelize(() => {
+      for (let i in addMatters) {
+        db.run(sql.matters.importAdd(addMatters[i]))
+      }
+      for (let i in removeMatters) {
+        db.run(sql.matters.importRemove(removeMatters[i]))
+      }
+      for (let i in addTags) {
+        db.run(sql.tags.importAdd(addTags[i]))
+      }
+      for (let oid in updateTags) {
+        db.run(sql.tags.importUpdate(oid, updateTags[oid]))
+      }
+      callback(true, {})
+    })
+    db.close();
   }
 }
 

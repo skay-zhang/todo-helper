@@ -192,6 +192,12 @@ function controller(dev, db, safe) {
       ret(res, state, data)
     })
   });
+  // 获取统计数据
+  serve.get('/api/statistics', (_req, res) => {
+    db.getStatistics((state, data) => {
+      ret(res, state, data)
+    })
+  });
   // 导出数据
   serve.get('/api/export', (_req, res) => {
     let start = new Date().getTime();
@@ -200,11 +206,11 @@ function controller(dev, db, safe) {
     })
     ret(res, true)
   });
-  // 导出数据
+  // 导入数据
   serve.get('/api/import', (_req, res) => {
     let start = new Date().getTime();
     db.exportData((state, data) => {
-      if (state) excel.read(start, safe, data.matters, data.tags);
+      if (state) excel.read(start, db, safe, data.matters, data.tags);
     })
     ret(res, true)
   });

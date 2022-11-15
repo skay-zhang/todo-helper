@@ -6,7 +6,7 @@
         <div class="title">待办助手</div>
         <div class="text-small text-gray mb-5">cc.stacks.todo.helper</div>
         <div class="flex align-center">
-          <div class="text-small mr-10">v{{version}}</div>
+          <div class="text-small mr-10">v{{ version }}</div>
           <a-button type="text" size="small">检查更新</a-button>
         </div>
       </div>
@@ -15,34 +15,32 @@
       </div>
     </div>
     <div class="card pa-10 mb-10">
-      <div class="text-gray">默认项</div>
-      <div class="flex align-center justify-between pt-10">
-        <div class="label">默认状态</div>
-        <div>进行中</div>
+      <div class="text-gray">数据统计</div>
+      <div class="flex align-center justify-center" style="height: 160px;" v-if="loading">
+        <a-spin />
       </div>
-      <div class="flex align-center justify-between pt-10">
-        <div class="label">默认一级标签</div>
-        <div>占位文本</div>
-      </div>
-      <div class="flex align-center justify-between pt-10">
-        <div class="label">默认二级标签</div>
-        <div>占位文本</div>
-      </div>
-    </div>
-    <div class="card pa-10 mb-10">
-      <div class="text-gray">通知提醒</div>
-      <div class="flex align-center justify-between pt-10">
-        <div class="label">待办事项</div>
-        <a-switch v-model:checked="remind.todo" />
-      </div>
-      <div class="flex align-center justify-between pt-10">
-        <div class="label">进行中事项</div>
-        <a-switch v-model:checked="remind.progress" />
-      </div>
-      <div class="flex align-center justify-between pt-10">
-        <div class="label">已完成事项</div>
-        <a-switch v-model:checked="remind.complete" />
-      </div>
+      <template v-else>
+        <div class="flex align-center justify-between pt-10">
+          <div class="label">待办事项</div>
+          <div>{{ statistics.state['1'] }} 项</div>
+        </div>
+        <div class="flex align-center justify-between pt-10">
+          <div class="label">进行中事项</div>
+          <div>{{ statistics.state['2'] }} 项</div>
+        </div>
+        <div class="flex align-center justify-between pt-10">
+          <div class="label">已完成事项</div>
+          <div>{{ statistics.state['3'] }} 项</div>
+        </div>
+        <div class="flex align-center justify-between pt-10">
+          <div class="label">回收站</div>
+          <div>{{ statistics.del }} 项</div>
+        </div>
+        <div class="flex align-center justify-between pt-10">
+          <div class="label">标签数量</div>
+          <div>{{ statistics.tags }} 个</div>
+        </div>
+      </template>
     </div>
     <div class="card pa-10 mb-10">
       <a-button class="mr-10" @click="importData">导入</a-button>
@@ -59,11 +57,21 @@ export default {
   name: "Setting",
   components: { GithubOutlined },
   data: () => ({
+    loading: true,
     version: '',
     remind: {
       todo: false,
       progress: true,
       complete: false
+    },
+    statistics: {
+      del: 0,
+      state: {
+        '1': 0,
+        '2': 0,
+        '3': 0
+      },
+      tags: 0
     }
   }),
   methods: {
@@ -96,7 +104,7 @@ export default {
         }
       })
     },
-    exportData(){
+    exportData() {
       this.$confirm({
         class: 'change-tips',
         content: `警告: 此操作可能需要一段时间, 在导出过程中请勿操作, 否则将发生无法预料的错误, 确认要继续导出吗?`,
@@ -122,7 +130,7 @@ export default {
         }
       })
     },
-    importData(){
+    importData() {
       this.$confirm({
         class: 'change-tips',
         content: `警告: 此操作可能需要一段时间, 在导入过程中请勿操作, 否则将发生无法预料的错误, 确认要继续导入吗?`,
@@ -147,10 +155,43 @@ export default {
           })
         }
       })
+    },
+    getStatistics() {
+      this.loading = true;
+      api.getStatistics().then(res => {
+        setTimeout(()=>{
+          this.loading = false;
+        },500)
+        if (res.state) {
+          this.statistics = {
+            del: res.result.del,
+            state: {
+              '1': 0,
+              '2': 0,
+              '3': 0
+            },
+            tags: res.result.tags
+          }
+          for (let i in res.result.state) {
+            this.statistics.state[res.result.state[i].state] = res.result.state[i].number
+          }
+          console.log(this.statistics)
+        } else {
+          this.$message.error({
+            content: res.result ? res.result : '刷新失败'
+          })
+        }
+      }).catch(err => {
+        this.loading = false;
+        this.$message.error({
+          content: '刷新失败,' + err
+        })
+      })
     }
   },
-  mounted(){
-    this.version = localStorage.getItem('version')
+  mounted() {
+    this.version = localStorage.getItem('version');
+    this.getStatistics();
   }
 }
 </script>
