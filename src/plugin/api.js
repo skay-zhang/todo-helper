@@ -16,6 +16,12 @@ request.interceptors.response.use(
 )
 
 export default {
+    getVersion: () => {
+        return request({
+            url: '/version',
+            method: 'GET'
+        })
+    },
     initAdd: () => {
         return request({
             url: '/add',
@@ -126,5 +132,17 @@ export default {
             url: '/tag/list',
             method: 'GET'
         })
-    }
+    },
+    exportData: () => {
+        return request({
+            url: '/export',
+            method: 'GET'
+        })
+    },
+    importData: () => {
+        return request({
+            url: '/import',
+            method: 'GET'
+        })
+    },
 }

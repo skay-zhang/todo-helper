@@ -9,6 +9,7 @@ import { CloseOutlined } from '@ant-design/icons-vue';
 import pageManagement from './components/page-management.vue';
 import pageFastAdd from './components/page-fast-add.vue';
 import AppHead from './components/app-head.vue';
+import api from './plugin/api';
 
 export default {
   name: "App",
@@ -20,6 +21,12 @@ export default {
   methods: {
     close() {
       window.electron.closeWindow(this.mode);
+    },
+    getVersion(){
+      api.getVersion().then(res=>{
+        if(res.state == true) localStorage.setItem('version',res.result)
+        localStorage.setItem('version',res.state == true ? res.result:'0.0.0')
+      })
     }
   },
   created() {
@@ -33,6 +40,7 @@ export default {
       this.mode = params.get('mode')
       this.platform = params.get('platform')
     }
+    this.getVersion();
   }
 }
 </script>

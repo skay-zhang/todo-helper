@@ -6,7 +6,7 @@
         <div class="title">待办助手</div>
         <div class="text-small text-gray mb-5">cc.stacks.todo.helper</div>
         <div class="flex align-center">
-          <div class="text-small mr-10">v1.0.0</div>
+          <div class="text-small mr-10">v{{version}}</div>
           <a-button type="text" size="small">检查更新</a-button>
         </div>
       </div>
@@ -45,8 +45,8 @@
       </div>
     </div>
     <div class="card pa-10 mb-10">
-      <a-button class="mr-10">导入</a-button>
-      <a-button class="mr-10">导出</a-button>
+      <a-button class="mr-10" @click="importData">导入</a-button>
+      <a-button class="mr-10" @click="exportData">导出</a-button>
       <a-button class="mr-10" type="primary" danger @click="clean">清空回收站</a-button>
     </div>
   </div>
@@ -59,6 +59,7 @@ export default {
   name: "Setting",
   components: { GithubOutlined },
   data: () => ({
+    version: '',
     remind: {
       todo: false,
       progress: true,
@@ -94,7 +95,62 @@ export default {
           })
         }
       })
+    },
+    exportData(){
+      this.$confirm({
+        class: 'change-tips',
+        content: `警告: 此操作可能需要一段时间, 在导出过程中请勿操作, 否则将发生无法预料的错误, 确认要继续导出吗?`,
+        cancelText: '取消',
+        okText: '确认',
+        title: `导出全部数据?`,
+        onOk: () => {
+          api.exportData().then(res => {
+            if (res.state) {
+              this.$message.success({
+                content: '导出任务已创建'
+              })
+            } else {
+              this.$message.error({
+                content: res.result ? res.result : '导出失败'
+              })
+            }
+          }).catch(err => {
+            this.$message.error({
+              content: '导出失败,' + err
+            })
+          })
+        }
+      })
+    },
+    importData(){
+      this.$confirm({
+        class: 'change-tips',
+        content: `警告: 此操作可能需要一段时间, 在导入过程中请勿操作, 否则将发生无法预料的错误, 确认要继续导入吗?`,
+        cancelText: '取消',
+        okText: '确认',
+        title: `导入外部数据?`,
+        onOk: () => {
+          api.importData().then(res => {
+            if (res.state) {
+              this.$message.success({
+                content: '导入任务已创建'
+              })
+            } else {
+              this.$message.error({
+                content: res.result ? res.result : '导入失败'
+              })
+            }
+          }).catch(err => {
+            this.$message.error({
+              content: '导入失败,' + err
+            })
+          })
+        }
+      })
     }
+  },
+  mounted(){
+    this.version = localStorage.getItem('version')
   }
 }
 </script>

@@ -1,5 +1,7 @@
+import pkg from '../../package.json'
 import express from 'express'
 import bodyParser from 'body-parser'
+import excel from './excel'
 import path from 'path'
 import http from 'http'
 
@@ -66,6 +68,10 @@ function controller(dev, db, safe) {
   })
   // 添加请求体解析器
   serve.use(bodyParser.urlencoded({ extended: false }))
+  // 获取应用版本
+  serve.get('/api/version', (_req, res) => {
+    ret(res, true, pkg.version)
+  })
   // 初始化添加页面
   serve.get('/api/add', (_req, res) => {
     db.getInitData((state, data) => {
@@ -129,7 +135,7 @@ function controller(dev, db, safe) {
     if (body.id == undefined || body.id == '') return ret(res, false, '编号不能为空')
     if (body.state == undefined || body.state == '') return ret(res, false, '状态不能为空')
     let state = parseInt(body.state);
-    db.updateMatterState(body.id, 't'+(state + 1), state, (state, data) => {
+    db.updateMatterState(body.id, 't' + (state + 1), state, (state, data) => {
       ret(res, state, data)
     })
   });
@@ -186,6 +192,22 @@ function controller(dev, db, safe) {
       ret(res, state, data)
     })
   });
+  // 导出数据
+  serve.get('/api/export', (_req, res) => {
+    let start = new Date().getTime();
+    db.exportData((state, data) => {
+      if (state) excel.build(start, safe, data.matters, data.tags);
+    })
+    ret(res, true)
+  });
+  // 导出数据
+  serve.get('/api/import', (_req, res) => {
+    let start = new Date().getTime();
+    db.exportData((state, data) => {
+      if (state) excel.read(start, safe, data.matters, data.tags);
+    })
+    ret(res, true)
+  });
   serve.use(express.static(path.join(__dirname, dev ? '../client' : '../../public/client')))
   return serve;
 }
@@ -193,7 +215,8 @@ function controller(dev, db, safe) {
 // 返回内容包装器
 function ret(res, state, result) {
   res.setHeader("Content-Type", "application/json;charset=UTF-8")
-  res.send({ state, result })
+  if (result) res.send({ state, result })
+  else res.send({ state })
   return false;
 }
 

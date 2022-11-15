@@ -124,10 +124,10 @@ const database = {
     });
     db.close();
   },
-  addTag(name, isDefault, callback) {
+  addTag(name, callback) {
     db = new sqlite.Database(path);
     db.serialize(() => {
-      db.all(sql.tags.add(name, isDefault), (err, res) => {
+      db.all(sql.tags.add(name), (err, res) => {
         if (err) callback(false, res)
         db.get(sql.tags.getIdByName(name), (error, sub) => {
           callback(error ? false : true, sub)
@@ -144,6 +144,28 @@ const database = {
       })
     });
     db.close();
+  },
+  exportData(callback){
+    db = new sqlite.Database(path);
+    db.serialize(() => {
+      db.all(sql.tags.getList, (err, res) => {
+        if (err) {
+          db.close();
+          throw err
+        }
+        db.all(sql.matters.getAll, (error, sub) => {
+          if (err) {
+            db.close();
+            throw err
+          }
+          callback(error ? false : true, {
+            tags: res,
+            matters: sub
+          })
+          db.close();
+        })
+      })
+    });
   }
 }
 

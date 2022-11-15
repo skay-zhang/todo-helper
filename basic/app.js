@@ -117,6 +117,15 @@ async function initMenu() {
         else mwin.show()
       }
     },
+    {
+      enabled: false,
+      label: '事项看板',
+      registerAccelerator: true,
+      accelerator: isWin ? '':'CmdOrCtrl+L',
+      click: () => {
+        console.log('[app] Listened to CmdOrCtrl+L')
+      }
+    },
     { type: 'separator' },
     {
       label: '导出月报',
