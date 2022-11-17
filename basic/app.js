@@ -5,6 +5,7 @@ process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST_E
 import { app, BrowserWindow, globalShortcut, Tray, Menu, ipcMain, safeStorage, nativeTheme } from 'electron'
 import database from './module/database'
 import http from './module/http-service'
+import report from './module/report'
 import { release } from 'os'
 import { join } from 'path'
 
@@ -132,6 +133,7 @@ async function initMenu() {
       accelerator: isWin ? '':'CmdOrCtrl+M',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+M')
+        report.month(database,new Date())
       }
     },
     {
@@ -140,6 +142,7 @@ async function initMenu() {
       accelerator: isWin ? '':'CmdOrCtrl+W',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+W')
+        report.week(database,new Date())
       }
     },
     {
@@ -148,6 +151,7 @@ async function initMenu() {
       accelerator: isWin ? '':'CmdOrCtrl+D',
       click: () => {
         console.log('[app] Listened to CmdOrCtrl+D')
+        report.day(database,new Date())
       }
     },
     { type: 'separator' },

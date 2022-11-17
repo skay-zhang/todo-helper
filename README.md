@@ -65,6 +65,7 @@ Thanks to the following projects that make TodoHelper possible.
 > Alphabetical order
 
 * [AntDesign Vue](https://github.com/vueComponent/ant-design-vue)
+* [Docxtemplater](https://github.com/open-xml-templating/docxtemplater)
 * [Electron](https://github.com/electron/electron)
 * [Electron Vite Vue](https://github.com/electron-vite/electron-vite-vue)
 * [Exceljs](https://github.com/exceljs/exceljs)
